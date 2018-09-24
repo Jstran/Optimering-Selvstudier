@@ -1,0 +1,73 @@
+---
+title: "Optimisation: Self study 1"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+In this self study session we will consider the `cars` dataset (see `?cars`):
+
+```{r}
+head(cars)
+```
+
+It consists of `r nrow(cars)` cars and was recorded in the 1920s. It has 2 columns: `speed` (speed [mph]) and `dist` (stopping distance [ft]):
+
+```{r}
+plot(dist ~ speed, cars)
+```
+
+Denote by $(s_i, d_i)$ for $i = 1, 2, \ldots, `r nrow(cars)`$ the observations.
+
+We want to fit a straight line of the form $m(s) = a + b \cdot s$ to the data. We want to determine $a$ and $b$. One way is to minimise the objective function given by
+\[
+f(a, b) = \frac{1}{n} \sum_{i = 1}^n f_i(a, b),
+\]
+where
+\[
+f_i(a, b) = (m(s_i) - d_i)^2 .
+\]
+
+## Animation
+
+Below, you are asked to illustrate. You can try both static graphics and with animations (e.g. using the `animation` package: <https://yihui.name/animation/>).
+
+# Exercise 1: Gradient descent
+
+Exercises:
+
+1. What is the gradient of $f$?
+2. Implement gradient descent a dend use it to find the best straight line.
+    * What is meant by *the best* straight line in relation to the objective function above?
+    * Discuss different ways to determine the step sizes.
+3. Try with different ways to choose step sizes and illustrate it (including plotting the objective function and the iterates, $\{x_k\}_k$). 
+    * (Technically, it may be easier to have an algorithm for each way of choosing step size.)
+4. Show some iterates in a plot showing the data (e.g. `plot(dist ~ speed, cars)`).
+
+Account for theoretical properties of the gradient descent.
+
+# Exercise 2: Stochastic gradient descent / incremental gradient descent
+
+In the gradient descent method, all observations are used in each step. If the dataset is really big it may be a problem.
+
+Instead, many smaller steps can be taken (either using one observation at a time or small batches of observations). This is often called stochastic gradient descent or incremental gradient descent and can be described as:
+
+* Choose starting value $x_0$ ($x_0 = (a_0, b_0)$).
+* Repeat until convergence:
+    + Randomly shuffle the observations in the dataset with a permutation $\sigma$ such that observation $i$ now becomes observation $\sigma(i)$.
+    + For each $i = 1, 2, \ldots, n$: take a step using only the $\sigma(i)$'th observation (minimise $f_{\sigma(i)}$ instead of $f$).
+
+Exercises:
+
+1. What is the difference between stochastic gradient descent and gradient descent?
+2. Implement stochastic gradient descent.
+3. Illustrate the behaviour of the stochastic gradient descent, including:
+    + Different ways to choose step sizes.
+    + The total objective function with a discussion of how it differs from a similar plot from the gradient descent method.
+    + Some iterates in a plot showing the data (e.g. `plot(dist ~ speed, cars)`).
+
+# Exercise 3: Be creative!
+
+Open exercise: try to be creative!
