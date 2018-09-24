@@ -39,7 +39,100 @@ Below, you are asked to illustrate. You can try both static graphics and with an
 Exercises:
 
 1. What is the gradient of $f$?
-2. Implement gradient descent a dend use it to find the best straight line.
+```{r}
+a = 1
+b = 2
+ab <- c(a,b)
+f <- function(ab){
+  sum = 0
+  n <- length(cars$dist)
+  s <- cars$speed
+  d <- cars$dist
+  for (i in 1:n){ 
+    sum <- sum + ((ab[1] + ab[2] * s[i]) - d[i])^2}
+  return(sum * 1/n)
+}
+
+f(ab)
+```
+```{r}
+vec <- c(1,2)
+h <- function(x) x + 2
+funcvec <- sapply(vec , h)
+funcvec[2]
+
+```
+Gradienten er udregnet i hånden til at være
+\[
+\nabla f(a, b) = \begin{pmatrix}1/n \sum^n_{i=1}2(a+bs_i)-2d_i\\ 1/n\sum^n_{i=1}2(a+bs_i)s_i-2d_is_i\end{pmatrix},
+\]
+2. Implement gradient descent and use it to find the best straight line.
+
+```{r}
+g <- function(ab){
+  n <- length(cars$dist)
+  s <- cars$speed
+  d <- cars$dist
+  f_a <- f_b <- numeric(n) 
+  grad <- numeric(2)
+  for (i in 1:n){
+    f_a[i] <- 2*(ab[1] + ab[2] * s[i] - d[i])
+    f_b[i] <- 2*(ab[1] + ab[2] * s[i] - d[i])*s[i]
+  }
+  grad[1] <- 1/n*sum(f_a)
+  grad[2] <- 1/n*sum(f_b)
+  return(grad)
+}
+g(ab)
+```
+
+```{r}
+backtracking_line_search <- function(alpha, c, r, x_k, p_k, g_k, f_k, f) {
+	alpha_k <- alpha
+	repeat {
+		x_candidate <- x_k + alpha_k * p_k
+		lhs <- f(x_candidate)
+		rhs <- f_k + c * alpha_k * g_k * p_k
+		if (lhs <= rhs) break
+		alpha_k <- r * alpha_k
+	}
+	return(alpha_k)
+}
+backtracking_line_search(1 , 1e-4 , 0.75 , ab , -g(ab) , g(ab) , f(ab) , f )
+```
+printf <- function(...) cat(sprintf(...))
+printfln <- function(...) cat(sprintf(...), "\n")
+
+# stopping criteria?
+
+steepest_descent <- function(f, g, x_k, alpha, c, r, tol, k_max) {
+	k <- 0
+	g_k <- abs(tol) + 1 # to get started
+	while ((abs(g_k) > tol) && (k < k_max)) {
+		f_k <- f(x_k)
+		#points(x_k, f_k) 
+		g_k <- g(x_k)
+		p_k <- -g_k # steepest descent direction
+		alpha_k <- backtracking_line_search(alpha, c, r, x_k, p_k, g_k, f_k, f)
+		x_old <- x_k 
+		x_k <- x_k + alpha_k * p_k
+		#lines(c(x_old, x_k), c(f(x_old), f(x_k)), col = "red")
+		
+		k <- k + 1
+		printfln("k = %d \t x_k = %.22f \t f_k = %f \t g_k = %f \t alpha_k = %f", k, x_k, f_k, g_k, alpha_k)
+	}
+	return(x_k)
+}
+alpha <- 1    # initial step-length
+c <- 1e-4 # Sufficient Decrease Condition (SDC) Strength
+r <- 0.75 # step-length reduction factor
+x_k <- ab
+tol <- 1e-4
+k_max <- 90
+x_solution <- steepest_descent(f, g, x_k, alpha, c, r, tol, k_max)
+x_solution
+```
+
     * What is meant by *the best* straight line in relation to the objective function above?
     * Discuss different ways to determine the step sizes.
 3. Try with different ways to choose step sizes and illustrate it (including plotting the objective function and the iterates, $\{x_k\}_k$). 
