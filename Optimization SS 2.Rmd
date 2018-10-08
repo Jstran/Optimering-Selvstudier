@@ -1,0 +1,66 @@
+---
+title: "Optimisation: Self study 2"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Exercise 1
+
+We have considered forward-difference (using $f(x)$ and $f(x + h)$) and central-difference (using $f(x - h)$ and $f(x + h)$). 
+
+1. What would happen if we extend the central-difference to also use $f(x - 2h)$ and $f(x + 2h)$? Hint: consider the Taylor series up to a sufficiently high power of $h$. Hint: "five-point stencil".
+2. Analyse this method in comparison with FD and CD (theoretically and practically on specific examples).
+3. What are the advantages and disadvantages of the different finite difference methods?
+
+# Exercise 2
+
+Implement algorithmic differentiation (AD) for univariate ($\mathbb{R} \to \mathbb{R}$) functions in `R` (supporting the following operations: `+`, `-`, `*`, `/`, `sin`, `cos`, `exp`). Use on the following problem and compare it with other ways of calculating the derivatives:
+
+\[
+  f(x) = \cos[ \sin(x) \cos(x) ]
+\]
+
+Extend your implementation to handle multivariate ($\mathbb{R} \to \mathbb{R}$) functions and use on the following problem and compare it with other ways of calculating the derivatives:
+
+\[
+  f(x) = [ x_1 x_2 \sin(x_3) + \exp(x_1 x_2) ] / x_3 \tag{8.26}
+\]
+
+# Exercise 3
+
+In a gradient descent problem (e.g. Rosenbrock's function or best straight line for `cars` dataset), compare the use of exact and numerical derivatives and discuss it. The comparisons can include e.g. illustrations or summary measures (number of iterations, amount of time spent, accuracy of solution and possibly other aspects).
+
+Remember that in `R`, there are many ways of registering amount of time spent. For very fast operations, you can use:
+
+```{r}
+library(microbenchmark)
+X <- model.matrix(~ speed, cars)
+microbenchmark(lm(dist ~ speed, cars), 
+               lm.fit(X, cars$dist),
+               lm.fit(model.matrix(~ speed, cars), cars$dist), 
+               times = 100)
+```
+
+For slower operations, you can do it manually:
+
+```{r}
+time_begin <- proc.time()
+
+for (i in 1:1000) {
+  lm(dist ~ speed, cars)
+}
+
+time_end <- proc.time()
+time_duration <- time_end - time_begin
+time_duration_secs <- time_duration["user.self"]
+time_duration_secs
+```
+
+
+# Exercise 4: Be creative!
+
+If you have anything, put it here.
+
