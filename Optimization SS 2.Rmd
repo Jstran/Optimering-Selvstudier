@@ -25,7 +25,7 @@ f'(x)\approx\frac{f(x+h) - f(x-h)}{2h}.
 \end{align*}
 Taylors formel er givet ved
 \begin{align*}
-f(x) = \sum^\infty_{j=0}\frac{f^{(j)}(x_0)}{j!}(x-x_0)^j
+f(x) = \sum^\infty_{n=0}\frac{f^{(n)}(x_0)}{n!}(x-x_0)^n
 \end{align*}
 og benyttes til at approximere funktionerne $f(x\pm h)$ og $f(x\pm 2h)$.
 \begin{align*}
@@ -55,7 +55,82 @@ For at eliminere leddene med $h^3$, bestemmes $8D_1-D_2$ og $f'(x)$ isoleres.
 \end{align*}
 
 2. Analyse this method in comparison with FD and CD (theoretically and practically on specific examples).
+
+Idet vi er interesseret i $h\to 0$ gælder der specielt for $h<1$ at, $$h>h^2>h^3>\cdots$$. 
+
+
+Trunkeringsfejlen er givet ved
+$$c_1h + c_2h^2 + \cdots$$
+Fejlen angives som store-O af $h$ i den laveste potens, idet $h<1$.
+
+For at sammenligne metoderne, betragtes deres trunkeringsfejl. 
+
+- FD er $O(h)$
+- CD er $O(h^2)$
+- Udvidet CD er $O(h^3)$
+
+Forward difference
+\begin{align*}
+\frac{\partial f}{\partial x_i}(x)\approx\frac{f(x+\varepsilon e_i) - f(x)}{\varepsilon e_i}, \quad \text{for }i=1,\ldots,n.
+\end{align*}
+
+Central difference
+\begin{align*}
+\frac{\partial f}{\partial x_i}(x)\approx\frac{f(x+\varepsilon e_i) - f(x - \varepsilon e_i)}{\varepsilon e_i}, \quad \text{for }i=1,\ldots,n.
+\end{align*}
+
+Udvidet central difference
+\begin{align*}
+\frac{\partial f}{\partial x_i}(x)\approx\frac{8( f(x+\varepsilon e_i) - f(x-\varepsilon e_i) ) - ( f(x+2\varepsilon e_i) - f(x-2\varepsilon e_i) )}{12\varepsilon e_i}, \quad\text{for }i=1,\ldots,n
+\end{align*}
+Det ses at vores metode har den laveste/bedste trunkeringsfejl. Dette kommer på bekostning af ekstra funktionsevalueringer.
+
+De forskellige metoder kræver forskellinge mængder funktionsevalueringer
+
+- FD kræver $n+1$ funktionsevalueringer
+- CD kræver $2n$ funktionsevalueringer
+- Udvidet CD kræver $4n$ funktionsevalueringer
+
+
+```{r}
+eps <- .Machine$double.eps
+x <- pi/3
+
+f        <- function(x){cos(cos(x)*sin(x))}
+df.exact <- function(x){-cos(2*x)*sin( cos(x)*sin(x) )}
+FD       <- function(x,h){(f(x+h) - f(x))/h}
+CD       <- function(x,h){(f(x+h) - f(x-h))/(2*h)}
+ExpCD    <- function(x,h){(8*( f(x+h) - f(x-h) )
+                          - ( f(x+2*h) - f(x-2*h) ))/(12*h)}
+
+FDPlot <- CDPlot <- ExpCDPlot <- h <- numeric(16)
+for (i in 1:16){
+h[i] <- 10^{-i}
+FDPlot[i]    <- FD(x,h[i])
+CDPlot[i]    <- CD(x,h[i])
+ExpCDPlot[i] <- ExpCD(x,h[i])
+}
+
+
+plot(log10(h) , log10( abs(ExpCDPlot - df.exact(x)) ) , 
+     type = "l" , col = "green" , 
+     xlab = "log10(h)" , ylab="log10(Afvigelse)")
+lines(log10(h) , log10( abs(CDPlot - df.exact(x)) ) , 
+      col = "blue")
+
+lines(log10(h) , log10( abs(FDPlot - df.exact(x)) ) , 
+      col = "red")
+legend(-16, -8, legend=c("FD", "CD" , "ExpCD"),
+       col=c("red", "blue" , "green" ), lty=1, cex=0.8)
+
+```
+
+Det ses at for tilpas store $h$ (ca. $h=10^{-6}$), vil den udvidede CD være et bedre approksimat af $f'(x)$ end CD og FD, idet afvigelsen for disse værdier af $h$, er lavere end CD og FD (se grøn kurve). For dette eksempel (Dim = 1) ses det at ExpCD kræver 4 funktionsevalueringer, hvilket er dobbelt så mange som for både FD og CD. 
+
 3. What are the advantages and disadvantages of the different finite difference methods?
+
+(Denne opgave er skrevet ind i opgave 1.2)
+
 
 # Exercise 2
 
