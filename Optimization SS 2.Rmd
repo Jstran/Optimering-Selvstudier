@@ -140,6 +140,56 @@ Implement algorithmic differentiation (AD) for univariate ($\mathbb{R} \to \math
   f(x) = \cos[ \sin(x) \cos(x) ]
 \]
 
+```{r}
+create_ADnum = function(val, deriv = 1) {
+x = list(val = val, deriv = deriv)
+class(x) = "ADnum"
+return(x)
+}
+x = create_ADnum(4) #Definerer blot x som et ADnum
+
+print.ADnum = function(x, ...) {
+cat("value = ", x$val,
+" and deriv = ", x$deriv, "\n", sep = "")
+return(invisible(x))
+}
+
+# print.ADnum(x) #Printer hvad værdien for et ADnum er og hvad den afledste for ADnum er
+     
+       #Definerer produktreglen, brøkregnen
+Ops.ADnum = function(e1, e2) {
+# LHS constant, e.g. 2*x: e1 is a number 2, convert to ADnum
+if (.Method[1] == "") {
+e1 = create_ADnum(e1, 0)
+}
+# RHS constant, e.g. x*2: e2 is a number 2, convert to ADnum
+if (.Method[2] == "") {
+e2 = create_ADnum(e2, 0)
+}
+if (.Generic == "*") {
+return(create_ADnum(e1$val * e2$val, e1$deriv*e2$val + e2$deriv*e1$val))
+}
+if (.Generic == "/") {
+return(create_ADnum(e1$val / e2$val, (e1$deriv*e2$val - e2$deriv*e1$val)/e2$val^2))
+}
+stop("Function ’", .Generic, "’ not yet implemented for ADnum")
+}
+
+       #Definerer cos, sin og exp
+Math.ADnum = function(x, ...) {
+if (.Generic == "cos") {
+return(create_ADnum(cos(x$val), -sin(x$val)))
+} else if (.Generic == "sin") {
+return(create_ADnum(sin(x$val), cos(x$val)))
+} else if (.Generic == "exp") {
+return(create_ADnum(exp(x$val), exp(x$val)))
+}
+stop("Function ’", .Generic, "’ not yet implemented for ADnum")
+}
+```
+
+
+
 Extend your implementation to handle multivariate ($\mathbb{R} \to \mathbb{R}$) functions and use on the following problem and compare it with other ways of calculating the derivatives:
 
 \[
