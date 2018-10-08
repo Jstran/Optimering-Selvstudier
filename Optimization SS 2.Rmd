@@ -2,7 +2,7 @@
 title: "Optimisation: Self study 2"
 output: html_document
 ---
-
+\usepackage{amsmath}
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
@@ -15,19 +15,15 @@ We have considered forward-difference (using $f(x)$ and $f(x + h)$) and central-
 \[
   f(x+h)  = f(x) + hf'(x) + \frac{1}{2}h^2f''(x) 
            + \frac{1}{6}h^3f^{(3)}(x) + \frac{1}{24}h^4f^{(4)}(x)                   + \frac{1}{120}h^5f^{(5)}(x)+O(h^6)\\
-  
   f(x-h)  = f(x) - hf'(x) + \frac{1}{2}h^2f''(x) 
            - \frac{1}{6}h^3f^{(3)}(x) + \frac{1}{24}h^4f^{(4)}(x) 
            - \frac{1}{120}h^5f^{(5)}(x)+O(h^6)\\
-         
   f(x+2h) = f(x) + 2hf'(x) +2h^2f''(x) + \frac{4}{3}h^3f^{(3)}(x)
            + \frac{2}{3}h^4f^{(4)}(x) + \frac{4}{15}h^5f^{(5)}(x)
            + O(h^6)\\
-
   f(x-2h) = f(x) - 2hf'(x) +2h^2f''(x) - \frac{4}{3}h^3f^{(3)}(x)
            + \frac{2}{3}h^4f^{(4)}(x) - \frac{4}{15}h^5f^{(5)}(x)
            + O(h^6)\\
-
 \]
 
 2. Analyse this method in comparison with FD and CD (theoretically and practically on specific examples).
