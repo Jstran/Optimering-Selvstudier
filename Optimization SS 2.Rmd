@@ -154,9 +154,14 @@ cat("value = ", x$val,
 return(invisible(x))
 }
 
-# print.ADnum(x) #Printer hvad værdien for et ADnum er og hvad den afledste for ADnum er
+x <- create_ADnum(4,1)
+f <- function(x){5*x*x}
+
+f(x)
+# print.ADnum(x) 
+# Printer hvad værdien for et ADnum er og hvad den afledte for ADnum er
      
-       #Definerer produktreglen, brøkregnen
+#Definerer produktreglen og brøkreglen
 Ops.ADnum = function(e1, e2) {
 # LHS constant, e.g. 2*x: e1 is a number 2, convert to ADnum
 if (.Method[1] == "") {
@@ -175,14 +180,16 @@ return(create_ADnum(e1$val / e2$val, (e1$deriv*e2$val - e2$deriv*e1$val)/e2$val^
 stop("Function ’", .Generic, "’ not yet implemented for ADnum")
 }
 
-       #Definerer cos, sin og exp
+#Definerer cos, sin og exp
 Math.ADnum = function(x, ...) {
 if (.Generic == "cos") {
-return(create_ADnum(cos(x$val), -sin(x$val)))
-} else if (.Generic == "sin") {
-return(create_ADnum(sin(x$val), cos(x$val)))
-} else if (.Generic == "exp") {
-return(create_ADnum(exp(x$val), exp(x$val)))
+  return(create_ADnum(cos(x$val), -sin(x$val)*x$deriv))
+} 
+else if (.Generic == "sin") {
+  return(create_ADnum(sin(x$val), cos(x$val)*x$deriv))
+} 
+else if (.Generic == "exp") {
+  return(create_ADnum(exp(x$val), exp(x$val)*x$deriv))
 }
 stop("Function ’", .Generic, "’ not yet implemented for ADnum")
 }
