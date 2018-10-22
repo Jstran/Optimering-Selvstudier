@@ -1,0 +1,101 @@
+---
+title: "Optimisation: Self study 3 -- Numerical differentiation"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Sample problems
+
+Use the problems below in the exercises.
+
+```{r}
+###########################################
+# Rosenbrock Objective Function
+###########################################
+f = function(x) 100*(x[2] - x[1]^2)^2 + (1 - x[1])^2
+f_xy = function(x, y) 100*(y - x^2)^2 + (1 - x)^2
+x_min_true = c(1, 1)
+
+# analytic derivatives
+g = function(x) c(2*(x[1] - 1) - 400*x[1]*(x[2] - x[1]^2), 200*(x[2] - x[1]^2))
+H = function(x) rbind(c(1200*x[1]^2 - 400*x[2] + 2, -400*x[1]), c(-400*x[1], 200))
+
+###########################################
+# Convex Elliptical Objective Function
+###########################################
+f = function(x) 0.5*(100*x[1]^2 + x[2]^2)
+f_xy = function(x,y) 0.5*(100*x^2 + y^2)
+x_min_true = c(0, 0)
+
+# analytic derivatives
+g = function(x) c(0.5*200*x[1], 0.5*2*x[2])
+H = function(x) 0.5*rbind(c(200, 0), c(0, 2))
+
+###########################################
+# Nonconvex Sines Objective Function
+###########################################
+f = function(x) x[1]^2 + .25*x[2]^2 + 4*(x[1] - x[2])^2*sin(x[2])^2
+f_xy = function(x, y) x^2 + .25*y^2 + 4*(x - y)^2*sin(y)^2
+x_min_true = c(0, 0)
+
+# analytic derivatives
+g = function(x) c(2*x[1] + 8*(x[1] - x[2])*sin(x[2])^2, .5*x[2] - 8*(x[1] - x[2])*sin(x[2])^2 + 4*(x[1] - x[2])^2*sin(2*x[2]))
+H = function(x)
+{
+	H11 = 2 + 8*sin(x[2])^2
+	H12 = 8*(2*(x[1] - x[2])*cos(x[2]) - sin(x[2]))*sin(x[2])
+	H21 = H12
+	H22 = 4.5 + 4*(2*(x[1] - x[2])^2 - 1)*cos(2*x[2]) + 16*(x[2] - x[1])*sin(2*x[2])
+	rbind(c(H11, H12), c(H21, H22))
+}
+```
+
+# Exercise 1: BFGS, DFP and SR1
+
+Implement BFGS, DFP and SR1 (as line search).
+
+Compare those with the gradient descent, Nelder-Mead (possibly by `optim(..., method = "Nelder-Mead")`) and `R`'s own BFGS implementation (`optim(..., method = "BFGS")`) on the problems given above: What are the differences? What is the performance difference (number of iterations, execution time e.g. `system.time`)? What impact does the choice of initial matrix (and possibly using (6.20)) have on the quasi-Newton methods?
+
+Remember the DRY principle (don't repeat yourself). Here is a example of how to plot several lines in a figure:
+
+```{r}
+res_bfgs <- cumprod(runif(10))
+res_dfp <- cumprod(runif(10))
+res_sr1 <- cumprod(runif(10))
+
+nms <- c("BFGS", "DFP", "SR1")
+clrs <- c("black", "red", "blue")
+x_plot <- list(res_bfgs, res_dfp, res_sr1)
+
+x_lim <- c(1, max(sapply(x_plot, length)))
+y_lim <- range(sapply(x_plot, range))
+
+plot(seq_along(x_plot[[1]]), x_plot[[1]], 
+     type = "l", col = clrs[1], 
+     xlim = x_lim, ylim = y_lim,
+     xlab = "Iteration",
+     ylab = "Some value")
+for (i in 2L:length(x_plot)) {
+  lines(seq_along(x_plot[[i]]), x_plot[[i]], col = clrs[i])
+}
+legend("topright", legend = nms, col = clrs, lty = 1)
+```
+
+
+# Exercise 2: Inverse Hessian approximations
+
+Investigate (plot, print, ...) the approximations of the Hessian ($B_{k}^{BFGS}$, $B_{k}^{DFP}$, and $B_{SR1}$) and inverse Hessian ($H_{k}^{BFGS}$, $H_{k}^{DFP}$, and $H_{SR1}$) in the optimisation problems given above. Compare to the the exact Hessian (and inverse) and maybe also to approximations by finite differences and/or automatic differentiation (possibly by libraries `numDeriv`/`madness`). (How can you summarise the difference on matrices?)
+
+# Exercise 3: Self-correcting properties
+
+What happens if you introduce error in the $H_k$'s in the implementations of BFGS, DFP, and SR1? Will the method self-correct? (Discuss how to introduce error.)
+
+Compare to methods without this error and the true inverse Hessian.
+
+
+# Exercise 4: Be creative!
+
+If you have anything, put it here.
