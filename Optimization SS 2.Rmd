@@ -141,25 +141,19 @@ Implement algorithmic differentiation (AD) for univariate ($\mathbb{R} \to \math
 \]
 
 ```{r}
+# Definerer hvad et "ADnum" er.
 create_ADnum = function(val, deriv = 1) {
 x = list(val = val, deriv = deriv)
 class(x) = "ADnum"
 return(x)
 }
-x = create_ADnum(4) #Definerer blot x som et ADnum
 
+# Definere hvad der forstås ved at printe et ADnum
 print.ADnum = function(x, ...) {
 cat("value = ", x$val,
 " and deriv = ", x$deriv, "\n", sep = "")
 return(invisible(x))
 }
-
-x <- create_ADnum(4,1)
-f <- function(x){5*x*x}
-
-f(x)
-# print.ADnum(x) 
-# Printer hvad værdien for et ADnum er og hvad den afledte for ADnum er
      
 #Definerer produktreglen og brøkreglen
 Ops.ADnum = function(e1, e2) {
@@ -167,15 +161,33 @@ Ops.ADnum = function(e1, e2) {
 if (.Method[1] == "") {
 e1 = create_ADnum(e1, 0)
 }
+
 # RHS constant, e.g. x*2: e2 is a number 2, convert to ADnum
 if (.Method[2] == "") {
 e2 = create_ADnum(e2, 0)
 }
+
+# Definerer hvordan man adderer ADnums
+if (.Generic == "+") {
+return(create_ADnum(e1$val + e2$val, (e1$deriv + e2$deriv)))
+}
+  
+# Definerer hvordan man subtraherer ADnums
+if (.Generic == "-") {
+return(create_ADnum(e1$val - e2$val, (e1$deriv - e2$deriv)))
+}
+  
+# Definerer hvordan man ganger ADnums (Produktregel) 
 if (.Generic == "*") {
 return(create_ADnum(e1$val * e2$val, e1$deriv*e2$val + e2$deriv*e1$val))
 }
+
+# Definerer hvordan man dividerer ADnums (Brøkregel)  
 if (.Generic == "/") {
 return(create_ADnum(e1$val / e2$val, (e1$deriv*e2$val - e2$deriv*e1$val)/e2$val^2))
+}
+if (.Generic == "^") {
+return(create_ADnum(e1$value^e2$value, e2$value*e1$value^(e2$value - 1) ))
 }
 stop("Function ’", .Generic, "’ not yet implemented for ADnum")
 }
@@ -191,8 +203,25 @@ else if (.Generic == "sin") {
 else if (.Generic == "exp") {
   return(create_ADnum(exp(x$val), exp(x$val)*x$deriv))
 }
+
 stop("Function ’", .Generic, "’ not yet implemented for ADnum")
 }
+
+
+x <- create_ADnum(pi/2)
+
+cos(sin(cos(x)))
+
+
+y <- create_ADnum(cos(x$val), -sin(x$val)*x$deriv)
+cos(y)
+
+z <- create_ADnum(sin(y$val), cos(y$val)*y$deriv)
+cos(z)
+
+f <- function(x){cos(sin(cos(x)))}
+f(x)
+
 ```
 
 

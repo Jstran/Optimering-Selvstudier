@@ -56,7 +56,46 @@ H = function(x)
 # Exercise 1: BFGS, DFP and SR1
 
 Implement BFGS, DFP and SR1 (as line search).
+```{r}
+# Definerer lige noget line-search (Der er Wolfe i)
+backtracking_line_search <- function(a, c, r, x_k, p_k, g_k, f_k, f) {
+	a_k <- a
+	repeat {
+		x_candidate <- x_k + a_k * p_k
+		lhs <- f(x_candidate)
+		rhs <- f_k + c * a_k * g_k * p_k
+		if (lhs <= rhs) break
+		a_k <- r * a_k
+	}
+	return(a_k)
+}
 
+# Implementation af BFGS
+a <- 1    # initial step-length
+c <- 1e-4 # Sufficient Decrease Condition (SDC) Strength
+r <- 0.75 # step-length reduction factor
+x_k <- c(1,2) # Startpunkt
+n <- length(x_k)
+tol <- 1e-10
+H_k <- H(x_k)
+k <- 0
+
+while(sqrt(sum(g(x_k)^2)) > tol){
+  p_k <- -H_k%*%g(x_k)
+  g_k <- g(x_k)
+  f_k <- f(x_k)
+  a <- backtracking_line_search(a, c, r, x_k, p_k, g_k, f_k, f) 
+  x_temp <-   
+  x_k <- x_k + a*p_k
+  s_k <- x_k - x_temp
+  y_k <- g(x_k) - g(x_temp)
+  
+  rho <- as.vector(1/(t(y_k)%*%s_k))
+  H_k <- (diag(n) - p_k*s_k*y_k)
+  k <- k + 1
+  
+}
+```
 Compare those with the gradient descent, Nelder-Mead (possibly by `optim(..., method = "Nelder-Mead")`) and `R`'s own BFGS implementation (`optim(..., method = "BFGS")`) on the problems given above: What are the differences? What is the performance difference (number of iterations, execution time e.g. `system.time`)? What impact does the choice of initial matrix (and possibly using (6.20)) have on the quasi-Newton methods?
 
 Remember the DRY principle (don't repeat yourself). Here is a example of how to plot several lines in a figure:
@@ -83,7 +122,9 @@ for (i in 2L:length(x_plot)) {
 }
 legend("topright", legend = nms, col = clrs, lty = 1)
 ```
+```{r}
 
+```
 
 # Exercise 2: Inverse Hessian approximations
 
