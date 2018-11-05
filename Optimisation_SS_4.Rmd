@@ -2,14 +2,120 @@
 title: "Optimisation: Self study 4 -- Least squares"
 output: html_document
 ---
-
+\usepackage{amsmath}
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
+Modellen der arbejdes med er
+\begin{align*}
+\phi(\boldsymbol x;\boldsymbol t).
+\end{align*}
 
+I generelle least square problemer, vil man finde parametre $\boldsymbol x$ sådan at objektfunktionen
+
+\begin{align}
+  f(\boldsymbol x) = \frac{1}{2}\sum_{j=1}^mr_j(\boldsymbol x)^2 \tag{10.1}
+\end{align}
+
+minimeres. Hvor
+
+\begin{align*}
+  r_j(\boldsymbol x) = \phi(\boldsymbol x;t_j)-y_j.
+\end{align*}
+
+Objektfunktion skrevet på vektorform er 
+
+\begin{align}
+  f(\boldsymbol x) = \frac{1}{2}||\boldsymbol{r}(\boldsymbol x)||^2,
+  \label{numeriskresid}
+\end{align}
+hvor $\boldsymbol{r}(\boldsymbol x) = (r_1(\boldsymbol x),\ldots,r_m(\boldsymbol x))^T$.
+
+\begin{align*}
+J(\boldsymbol x) = 
+\begin{bmatrix} 
+  \nabla r_1(\boldsymbol x)^T\\
+  \nabla r_2(\boldsymbol x)^T\\
+  \vdots\\
+  \nabla r_m(\boldsymbol x)^T
+\end{bmatrix}
+=
+\begin{bmatrix}
+  \frac{\partial r_1}{\partial x_1} & \frac{\partial r_1}{\partial x_2} & \cdots & \frac{\partial r_1}{\partial x_m} \\
+  \frac{\partial r_2}{\partial x_1} & \frac{\partial r_2}{\partial x_2} & \cdots & \frac{\partial r_2}{\partial x_m} \\
+  \vdots & \vdots & \ddots & \vdots \\
+  \frac{\partial r_m}{\partial x_1} & \frac{\partial r_m}{\partial x_2} & \cdots & \frac{\partial r_m}{\partial x_m}
+\end{bmatrix}
+\end{align*}
+Gradienten og Hessematricen for $f$ kan udtrykkes som
+\begin{align*}
+\nabla f ( x ) &= \sum _ { j = 1 } ^ { m } r _ { j } ( x ) \nabla r _ { j } ( x ) = J ( x ) ^ T r ( x )\\
+\nabla ^ { 2 } f ( x ) &= \sum _ { j = 1 } ^ { m } \nabla r _ { j } ( x ) \nabla r _ { j } ( x ) ^ T + \sum _ { j = 1 } ^ { m } r _ { j } ( x ) \nabla ^ { 2 } r _ { j } ( x )\\
+&= J ( x ) ^ T J ( x ) + \sum _ { j = 1 } ^ { m } r _ { j } ( x ) \nabla ^ { 2 } r _ { j } ( x )
+\end{align*}
 # Exercise 1: OLS
 
-Explain and show different ways to solve an OLS problem (e.g. `cars` dataset) using matrix factorisations.
+Explain and show different ways to solve an OLS problem (e.g. `cars` dataset) using matrix factorisations. 
+
+Hvad er et OLS problem?
+
+I tilfældet af at $\phi(\boldsymbol x;\boldsymbol t)$ er en lineær funktion af $\boldsymbol x$, vil det medføre at residualerne $ r_j(\boldsymbol x)$ også er lineære. Så kaldes det problem man gerne vil løse et 'Linear least square problem'. Så kan residualerne opstilles $\boldsymbol r(\boldsymbol x) = J\boldsymbol x - \boldsymbol y$ og objektfunktionen \eqref{numeriskresid} kan skrives
+\begin{align}
+  f(\boldsymbol x) = \frac{1}{2}||J\boldsymbol x - \boldsymbol y|| \tag{10.13}.
+\end{align}
+Gradienten og Hessematricen er nu på formen
+\begin{align*}
+  \nabla f(\boldsymbol x) &= J^T(J\boldsymbol x - \boldsymbol y)\\
+  \nabla^2 f(\boldsymbol x) &= J^TJ.
+\end{align*}
+DET ER LET AT SE AT $f(\boldsymbol x)$ I (10.13) ER KONVEKS.Jf. Sætning 2.5 siger så at ethvert punkt $\boldsymbol{x}^*$ der opfylder $\nabla f(\boldsymbol{x}^*)=0$ er en 'global minimiser' af $f$. Derfor må $\boldsymbol{x}^*$ opfylde
+\begin{align} 
+  0 = \nabla f(\boldsymbol{x}^*) &= J^T(J\boldsymbol{x}^* - \boldsymbol y)\nonumber\\
+  &\Updownarrow\nonumber\\
+  J^TJ\boldsymbol{x}^*&=J^T\boldsymbol y. \tag{10.14}
+\end{align}
+Ligning (10.14) er 'normalligningerne'.
+
+
+
+Vil finde en model på formen "dist = b_0 + b_1 * speed". Det vil sige vores designmatrix er som følgende
+```{r}
+designmatrix <- matrix(1, nrow = length(cars$speed), ncol = 2)
+designmatrix[,2] <- cars$speed
+```
+Vil bestemme J (jacobi-matricen), den er givet ved 
+```{r}
+J <- designmatrix
+```
+Skal nu finde de $x$-værdier (normalt vores betaer) som gør at residualerne er mindst. Et minimum for x'erne skal jf. (10.14) opfylde $J^TJ=J^T\cdot dist$. For at løse dette bruges Cholesky, hvor $A=J^TJ$ og $b=J^T\cdot dist$, da fås at $Ax=b$:
+```{r}
+A <- t(J) %*% J
+b <- t(J) %*% cars$dist
+```
+Der skal nu løses $Ax=b$. Dette gøres ved brug af Cholesky. Først findes $L$ sådan at $A=LL^T$. (Bemærk: $chol(A) = L^T$)
+```{r}
+L <- t(chol(A))
+```
+Finder $z$ udfra $Lz=b$. Da $L$ er en nedre trekantsmatrix, vil der ved brug af forwardsolving skulle løses $n$ lineære ligninger med én ubekendt.
+```{r}
+z <- forwardsolve(L,b)
+```
+Finder nu $x$ udfra $L^Tx=z$. Da $L^T$ er en nedre trekantsmatrix, vil der ved brug af backwardsolving skulle løses $n$ lineære ligninger med én ubekendt.
+```{r}
+x_star <- backsolve(t(L), z)
+```
+Nu haves de $x$-værdier (betaer) som minimerer residualerne ($Jx-dist$)
+```{r}
+x_star
+```
+Disse x-værdier kan sammenlignes med de værdier som fås ved brug lm-funktionen
+```{r}
+lm_cars <- lm(cars$dist ~ cars$speed, data = cars)
+
+x_lm <- coefficients(lm_cars)
+
+x_lm
+```
 
 # Exercise 2: NLS
 
