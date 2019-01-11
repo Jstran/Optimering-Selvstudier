@@ -73,7 +73,6 @@ g <- function(ab){
 ***
 2. Implement gradient descent and use it to find the best straight line.
 ```{r}
-ab <- c(3,5)
 backtracking_line_search <- function(alpha, c, rho, x_k, p_k, g_k, f) {
 	alpha_k <- alpha
 	repeat { 
@@ -84,14 +83,16 @@ backtracking_line_search <- function(alpha, c, rho, x_k, p_k, g_k, f) {
 	}
 	return(alpha_k)
 }
-backtracking_line_search(1 , 1e-4 , 0.75 , ab , -g(ab) , g(ab) , f )
 ```
+
+```{r}
 printf <- function(...) cat(sprintf(...))
 printfln <- function(...) cat(sprintf(...), "\n")
+```
 
 # stopping criteria?
-```
-steepest_descent <- function(f, g, x_k, alpha, c, r, tol, k_max) {
+```{r}
+steepest_descent <- function(f, g, x_k, alpha, c, rho, tol, k_max) {
 	k <- 0
 	g_k <- abs(tol) + 1 # to get started
 	while ((abs(g_k) > tol) && (k < k_max)) {
@@ -99,23 +100,23 @@ steepest_descent <- function(f, g, x_k, alpha, c, r, tol, k_max) {
 		#points(x_k, f_k) 
 		g_k <- g(x_k)
 		p_k <- -g_k # steepest descent direction
-		alpha_k <- backtracking_line_search(alpha, c, rho, x_k, p_k, g_k, f_k, f)
+		alpha_k <- backtracking_line_search(alpha, c, rho, x_k, p_k, g_k, f)
 		x_old <- x_k 
 		x_k <- x_k + alpha_k * p_k
-		#lines(c(x_old, x_k), c(f(x_old), f(x_k)), col = "red")
 		
 		k <- k + 1
-		printfln("k = %d \t x_k = %.22f \t f_k = %f \t g_k = %f \t alpha_k = %f", k, x_k, f_k, g_k, alpha_k)
+		printfln("k = %d \t x_k = (%6.3f , %6.3f) \t f_k = %.2f \t g_k = (%8.3f , %8.3f) \t alpha_k = %.5f", k, x_k[1] , x_k[2], f_k, g_k[1] , g_k[2], alpha_k)
 	}
 	return(x_k)
 }
-alpha <- 1    # initial step-length
+ab <- c(3,5)
+alpha <- 0.1    # initial step-length
 c   <- 1e-4 # Sufficient Decrease Condition (SDC) Strength
 rho <- 0.75 # step-length reduction factor
 x_k <- ab
-tol <- 1e-4
-k_max <- 90
-x_solution <- steepest_descent(f, g, x_k, alpha, c, r, tol, k_max)
+tol <- 1e-3
+k_max <- 100000
+x_solution <- steepest_descent(f, g, x_k, alpha, c, rho, tol, k_max)
 x_solution
 ```
 
