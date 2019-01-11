@@ -7,13 +7,6 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-In this self study session we will consider the `cars` dataset (see `?cars`):
-
-```{r}
-head(cars)
-```
-
-It consists of `r nrow(cars)` cars and was recorded in the 1920s. It has 2 columns: `speed` (speed [mph]) and `dist` (stopping distance [ft]):
 
 ```{r}
 plot(dist ~ speed, cars)
@@ -38,11 +31,11 @@ Below, you are asked to illustrate. You can try both static graphics and with an
 
 Exercises:
 
+
+***
+
 1. What is the gradient of $f$?
 ```{r}
-a = 1
-b = 2
-ab <- c(a,b)
 f <- function(ab){
   sum = 0
   n <- length(cars$dist)
@@ -52,59 +45,52 @@ f <- function(ab){
     sum <- sum + ((ab[1] + ab[2] * s[i]) - d[i])^2}
   return(sum * 1/n)
 }
-
-f(ab)
 ```
-```{r}
-vec <- c(1,2)
-h <- function(x) x + 2
-funcvec <- sapply(vec , h)
-funcvec[2]
 
-```
 Gradienten er udregnet i hånden til at være
 \[
-\nabla f(a, b) = \begin{pmatrix}1/n \sum^n_{i=1}2(a+bs_i)-2d_i\\ 1/n\sum^n_{i=1}2(a+bs_i)s_i-2d_is_i\end{pmatrix},
+\nabla f(a, b) = \begin{pmatrix}1/n \sum^n_{i=1}2((a+bs_i)-d_i)\\ 1/n\sum^n_{i=1}2((a+bs_i)-d_i)s_i\end{pmatrix},
 \]
-2. Implement gradient descent and use it to find the best straight line.
 
+Funktionen defineres i R
 ```{r}
 g <- function(ab){
-  n <- length(cars$dist)
+  n <- length(cars$speed)
   s <- cars$speed
   d <- cars$dist
-  f_a <- f_b <- numeric(n) 
+  g_a <- g_b <- numeric(n) 
   grad <- numeric(2)
   for (i in 1:n){
-    f_a[i] <- 2*(ab[1] + ab[2] * s[i] - d[i])
-    f_b[i] <- 2*(ab[1] + ab[2] * s[i] - d[i])*s[i]
+    g_a[i] <- 2*(ab[1] + ab[2] * s[i] - d[i])
+    g_b[i] <- 2*(ab[1] + ab[2] * s[i] - d[i])*s[i]
   }
-  grad[1] <- 1/n*sum(f_a)
-  grad[2] <- 1/n*sum(f_b)
+  grad[1] <- 1/n*sum(g_a)
+  grad[2] <- 1/n*sum(g_b)
   return(grad)
 }
-g(ab)
 ```
 
+***
+2. Implement gradient descent and use it to find the best straight line.
 ```{r}
-backtracking_line_search <- function(alpha, c, r, x_k, p_k, g_k, f_k, f) {
+ab <- c(3,5)
+backtracking_line_search <- function(alpha, c, rho, x_k, p_k, g_k, f) {
 	alpha_k <- alpha
-	repeat {
-		x_candidate <- x_k + alpha_k * p_k
-		lhs <- f(x_candidate)
-		rhs <- f_k + c * alpha_k * g_k * p_k
+	repeat { 
+		lhs <- f(x_k + alpha_k * p_k)
+		rhs <- f(x_k) + c * alpha_k * g_k %*% p_k
 		if (lhs <= rhs) break
-		alpha_k <- r * alpha_k
+		alpha_k <- rho * alpha_k
 	}
 	return(alpha_k)
 }
-backtracking_line_search(1 , 1e-4 , 0.75 , ab , -g(ab) , g(ab) , f(ab) , f )
+backtracking_line_search(1 , 1e-4 , 0.75 , ab , -g(ab) , g(ab) , f )
 ```
 printf <- function(...) cat(sprintf(...))
 printfln <- function(...) cat(sprintf(...), "\n")
 
 # stopping criteria?
-
+```
 steepest_descent <- function(f, g, x_k, alpha, c, r, tol, k_max) {
 	k <- 0
 	g_k <- abs(tol) + 1 # to get started
@@ -113,7 +99,7 @@ steepest_descent <- function(f, g, x_k, alpha, c, r, tol, k_max) {
 		#points(x_k, f_k) 
 		g_k <- g(x_k)
 		p_k <- -g_k # steepest descent direction
-		alpha_k <- backtracking_line_search(alpha, c, r, x_k, p_k, g_k, f_k, f)
+		alpha_k <- backtracking_line_search(alpha, c, rho, x_k, p_k, g_k, f_k, f)
 		x_old <- x_k 
 		x_k <- x_k + alpha_k * p_k
 		#lines(c(x_old, x_k), c(f(x_old), f(x_k)), col = "red")
@@ -124,8 +110,8 @@ steepest_descent <- function(f, g, x_k, alpha, c, r, tol, k_max) {
 	return(x_k)
 }
 alpha <- 1    # initial step-length
-c <- 1e-4 # Sufficient Decrease Condition (SDC) Strength
-r <- 0.75 # step-length reduction factor
+c   <- 1e-4 # Sufficient Decrease Condition (SDC) Strength
+rho <- 0.75 # step-length reduction factor
 x_k <- ab
 tol <- 1e-4
 k_max <- 90
@@ -155,8 +141,8 @@ Instead, many smaller steps can be taken (either using one observation at a time
 Exercises:
 
 1. What is the difference between stochastic gradient descent and gradient descent?
-2. Implement stochastic gradient descent.
-3. Illustrate the behaviour of the stochastic gradient descent, including:
+2. (Optional) Implement stochastic gradient descent. 
+3. (Optional) Illustrate the behaviour of the stochastic gradient descent, including:
     + Different ways to choose step sizes.
     + The total objective function with a discussion of how it differs from a similar plot from the gradient descent method.
     + Some iterates in a plot showing the data (e.g. `plot(dist ~ speed, cars)`).
