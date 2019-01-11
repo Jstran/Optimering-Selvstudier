@@ -122,15 +122,6 @@ x_sol <- steepest_descent(f, g, x_k   = c(3,3) ,
 
 plot(dist ~ speed , cars)
 abline(x_sol , col = "red")
-
-#fplot <- function(a,b){return(f(c(a,b)))}
-#gplot <- function(a,b){return(g(c(a,b)))}
-
-#h <- function(x,y) 2*x^2 + 5*y^2
-#ani.options(interval = 0.3, nmax = 50)
-#xx = grad.desc(fplot , gplot)
-#xx$par 
-
 ```
 
 
