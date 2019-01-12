@@ -98,9 +98,9 @@ printfln <- function(...) cat(sprintf(...), "\n")
 
 steepest_descent <- function(f, g, x_k, alpha, c, rho, tol, k_max) {
 	k <- 0
-	g_k <- tol + 1 # to get started
+	g_k <- tol + 1 # For at komme i gang
 	
-	while ((abs(g_k) > tol) && (k < k_max)) {
+	while ((norm(g_k , type="2") > tol) & (k < k_max)) { # Type 2 er for vektorer
 		g_k <- g(x_k)
 		p_k <- -g_k 
 		alpha_k <- backtracking_line_search(alpha, c, rho, x_k, p_k, g_k, f)
@@ -113,7 +113,7 @@ steepest_descent <- function(f, g, x_k, alpha, c, rho, tol, k_max) {
 	return(x_k)
 }
 
-x_sol <- steepest_descent(f, g, x_k   = c(3,3) , 
+x_sol <- steepest_descent(f, g, x_k   = c(1,1) , 
                                 alpha = 0.1    ,
                                 c     = 1e-4   , 
                                 rho   = 0.75   , 
@@ -127,13 +127,20 @@ abline(x_sol , col = "red")
 
 
     * What is meant by *the best* straight line in relation to the objective function above?
+Objektfunktionen er givet ved summen af de kvadrerede residualer ganget med 1/n, og den bedste rette linje opnås netop ved de koefficienter der minimerer denne sum.  
+
     * Discuss different ways to determine the step sizes.
+***
 3. Try with different ways to choose step sizes and illustrate it (including plotting the objective function and the iterates, $\{x_k\}_k$). 
     * (Technically, it may be easier to have an algorithm for each way of choosing step size.)
-4. Show some iterates in a plot showing the data (e.g. `plot(dist ~ speed, cars)`).
 
+***
+
+***
+4. Show some iterates in a plot showing the data (e.g. `plot(dist ~ speed, cars)`).
 Account for theoretical properties of the gradient descent.
 
+***
 # Exercise 2: Stochastic gradient descent / incremental gradient descent
 
 In the gradient descent method, all observations are used in each step. If the dataset is really big it may be a problem.
