@@ -6,6 +6,11 @@ output: html_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library("animation")
+Outer <- function(x,y,fun) {
+   mat <- matrix(NA, length(x), length(y))
+   for (i in seq_along(x)) {
+            for (j in seq_along(y)) {mat[i,j] <- fun(x[i],y[j])} }
+   mat}
 ```
 
 
@@ -43,9 +48,7 @@ f <- function(ab){
   n <- length(cars$dist)
   s <- cars$speed
   d <- cars$dist
-  for (i in 1:n){ 
-    sum <- sum + ((ab[1] + ab[2] * s[i]) - d[i])^2}
-  return(sum * 1/n)
+  return(1/n * sum((ab[1] + ab[2] * s - d)^2))
 }
 ```
 
@@ -96,16 +99,28 @@ backtracking_line_search <- function(alpha, c, rho, x_k, p_k, g_k, f) {
 printf <- function(...) cat(sprintf(...))
 printfln <- function(...) cat(sprintf(...), "\n")
 
+
+f_xy <- function(x,y) return(f(c(x,y)))
+
 steepest_descent <- function(f, g, x_k, alpha, c, rho, tol, k_max) {
-	k <- 0
+	N <- 30
+	x <- seq(-20,3,length=N)
+	y <- seq(1,7,length=N)
+  z <- Outer(x , y , f_xy)
+  lev <- c(300,500,750,1000,2000,4000)
+  contour(x, y, z, levels = lev)
+  
+  k <- 0
 	g_k <- tol + 1 # For at komme i gang
-	
 	while ((norm(g_k , type="2") > tol) & (k < k_max)) { # Type 2 er for vektorer
 		g_k <- g(x_k)
 		p_k <- -g_k 
 		alpha_k <- backtracking_line_search(alpha, c, rho, x_k, p_k, g_k, f)
+		x_old <- x_k
 		x_k <- x_k + alpha_k * p_k
 		k <- k + 1
+		
+		lines(c(x_old[1],x_k[1]) , c(x_old[2],x_k[2]) , col = "red")
 	}
 	
 	printfln("k = %d \t x_k = (%6.3f , %6.3f) \t f_k = %.2f \t g_k = (%8.3f , %8.3f) \t alpha_k = %.5f", k, x_k[1] , x_k[2], f(x_k), g_k[1] , g_k[2], alpha_k)
@@ -113,12 +128,12 @@ steepest_descent <- function(f, g, x_k, alpha, c, rho, tol, k_max) {
 	return(x_k)
 }
 
-x_sol <- steepest_descent(f, g, x_k   = c(1,1) , 
+x_sol <- steepest_descent(f, g, x_k   = c(1,5) , 
                                 alpha = 0.1    ,
                                 c     = 1e-4   , 
                                 rho   = 0.75   , 
                                 tol   = 1e-4   , 
-                                k_max = 100)
+                                k_max = 8000)
 
 plot(dist ~ speed , cars)
 abline(x_sol , col = "red")
