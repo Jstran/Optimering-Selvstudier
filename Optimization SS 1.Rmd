@@ -11,6 +11,8 @@ Outer <- function(x,y,fun) {
    for (i in seq_along(x)) {
             for (j in seq_along(y)) {mat[i,j] <- fun(x[i],y[j])} }
    mat}
+printf <- function(...) cat(sprintf(...))
+printfln <- function(...) cat(sprintf(...), "\n")
 ```
 
 
@@ -50,6 +52,8 @@ f <- function(ab){
   d <- cars$dist
   return(1/n * sum((ab[1] + ab[2] * s - d)^2))
 }
+
+f_xy <- function(x,y) return(f(c(x,y)))
 ```
 
 Gradienten er udregnet i hånden til at være
@@ -62,16 +66,10 @@ Funktionen defineres i R
 g <- function(ab){
   n <- length(cars$speed)
   s <- cars$speed
-  d <- cars$dist
-  g_a <- g_b <- numeric(n) 
-  grad <- numeric(2)
-  for (i in 1:n){
-    g_a[i] <- 2*(ab[1] + ab[2] * s[i] - d[i])
-    g_b[i] <- 2*(ab[1] + ab[2] * s[i] - d[i])*s[i]
-  }
-  grad[1] <- 1/n*sum(g_a)
-  grad[2] <- 1/n*sum(g_b)
-  return(grad)
+  d <- cars$dist 
+  g_a <- 1/n * sum(2 * (ab[1] + ab[2] * s - d) )
+  g_b <- 1/n * sum(2 * (ab[1] + ab[2] * s - d) * s)
+  return(c(g_a,g_b))
 }
 ```
 
@@ -96,16 +94,11 @@ backtracking_line_search <- function(alpha, c, rho, x_k, p_k, g_k, f) {
 
 
 ```{r}
-printf <- function(...) cat(sprintf(...))
-printfln <- function(...) cat(sprintf(...), "\n")
-
-
-f_xy <- function(x,y) return(f(c(x,y)))
-
 steepest_descent <- function(f, g, x_k, alpha, c, rho, tol, k_max) {
-	N <- 30
+	
+  N <- 30
 	x <- seq(-20,3,length=N)
-	y <- seq(1,7,length=N)
+	y <- seq(1,7,  length=N)
   z <- Outer(x , y , f_xy)
   lev <- c(300,500,750,1000,2000,4000)
   contour(x, y, z, levels = lev)
@@ -129,14 +122,18 @@ steepest_descent <- function(f, g, x_k, alpha, c, rho, tol, k_max) {
 }
 
 x_sol <- steepest_descent(f, g, x_k   = c(1,5) , 
-                                alpha = 0.1    ,
+                                alpha = 1      ,
                                 c     = 1e-4   , 
-                                rho   = 0.75   , 
+                                rho   = 0.5    , 
                                 tol   = 1e-4   , 
-                                k_max = 8000)
+                                k_max = 20000)
+```
 
+Bruges de funde værdier for a og b som koefficienter for den rette linje $m(s) = a + b \cdot s$ opnås følgende
+```{r}
 plot(dist ~ speed , cars)
 abline(x_sol , col = "red")
+legend(4,115,legend = "m(s) = a + bs" , col = "red" , lty = 1)
 ```
 
 
