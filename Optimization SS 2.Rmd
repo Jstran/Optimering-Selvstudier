@@ -107,6 +107,7 @@ Metoderne kræver følgende antal funktionsevalueringer
 
 
 **Praktisk eksempel for sammenligning af metoderne**
+
 ```{r}
 eps <- .Machine$double.eps
 x <- pi/3
@@ -118,23 +119,23 @@ CD       <- function(x,h){(f(x+h) - f(x-h))/(2*h)}
 ExpCD    <- function(x,h){(8*( f(x+h) - f(x-h) )
                           - ( f(x+2*h) - f(x-2*h) ))/(12*h)}
 
-FDPlot <- CDPlot <- ExpCDPlot <- h <- numeric(16)
+FD_val <- CD_val <- ExpCD_val <- h <- numeric(16)
 for (i in 1:16){
 h[i] <- 10^{-i}
-FDPlot[i]    <- FD(x,h[i])
-CDPlot[i]    <- CD(x,h[i])
-ExpCDPlot[i] <- ExpCD(x,h[i])
+FD_val[i]    <- FD(x,h[i])
+CD_val[i]    <- CD(x,h[i])
+ExpCD_val[i] <- ExpCD(x,h[i])
 }
 
+FD_err    <- abs(FD_val - df.exact(x))
+CD_err    <- abs(CD_val - df.exact(x))
+ExpCD_err <- abs(ExpCD_val - df.exact(x))
 
-plot(log10(h) , log10( abs(ExpCDPlot - df.exact(x)) ) , 
-     type = "l" , col = "green" , 
-     xlab = "log10(h)" , ylab="log10(Afvigelse)")
-lines(log10(h) , log10( abs(CDPlot - df.exact(x)) ) , 
-      col = "blue")
+plot(log10(h) , log10( ExpCD_err ) , 
+     type = "l" , col = "green" , xlab = "log10(h)" , ylab="log10(Afvigelse)")
+lines(log10(h) , log10( CD_err ) , col = "blue")
+lines(log10(h) , log10( FD_err ) , col = "red")
 
-lines(log10(h) , log10( abs(FDPlot - df.exact(x)) ) , 
-      col = "red")
 legend(-16, -9.5, legend=c("FD", "CD" , "ExpCD"),
        col=c("red", "blue" , "green" ), lty=1, cex=0.8)
 
