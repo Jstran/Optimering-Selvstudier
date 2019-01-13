@@ -120,7 +120,7 @@ ExpCD    <- function(x,h){(8*( f(x+h) - f(x-h) )
                           - ( f(x+2*h) - f(x-2*h) ))/(12*h)}
 
 FD_val <- CD_val <- ExpCD_val <- h <- numeric(16)
-for (i in 1:16){
+for (i in seq(1,16, length.out = 16)){
 h[i] <- 10^{-i}
 FD_val[i]    <- FD(x,h[i])
 CD_val[i]    <- CD(x,h[i])
