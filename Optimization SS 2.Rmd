@@ -75,11 +75,6 @@ Dette betyder at trunkeringsfejlen er givet ved
 \begin{align*}
     O(h)
 \end{align*}
-Trunkeringsfejlen angives som store-$O$ af $h$ i den laveste potens, idet vi kun er interesseret i $h < 1$.
-At trunkeringsfejlen er store-$O$ af $h$, betyder, at der eksisterer en konstant $M$, sådan at
-\begin{align*}
-    | c_1 h + c_2 h^2 + \cdots | \leq M \cdot h.
-\end{align*}
 
 Trunkeringsfejlene for de forskellige metoder er givet ved. 
 
@@ -111,7 +106,7 @@ Metoderne kræver følgende antal funktionsevalueringer
 - Udvidet CD kræver $4n$ funktionsevalueringer
 
 
-\textbf{Praktisk eksempel for sammenligning af metoderne}
+**Praktisk eksempel for sammenligning af metoderne**
 ```{r}
 eps <- .Machine$double.eps
 x <- pi/3
@@ -147,7 +142,6 @@ legend(-16, -9.5, legend=c("FD", "CD" , "ExpCD"),
 
 Det ses at for tilpas store $h$ (ca. $h=10^{-6}$), vil den udvidede CD være et bedre approksimat af $f'(x)$ end CD og FD, idet afvigelsen for disse værdier af $h$, er lavere end CD og FD (se grøn kurve). For dette eksempel (Dim = 1) ses det at ExpCD kræver 4 funktionsevalueringer, hvilket er dobbelt så mange som for både FD og CD. 
 
-test test test
 
 ***
 3. What are the advantages and disadvantages of the different finite difference methods?
