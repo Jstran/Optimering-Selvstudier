@@ -5,13 +5,17 @@ output: html_document
 \usepackage{amsmath}
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+library("microbenchmark")
 ```
 
 # Exercise 1
 
 We have considered forward-difference (using $f(x)$ and $f(x + h)$) and central-difference (using $f(x - h)$ and $f(x + h)$). 
 
-1. What would happen if we extend the central-difference to also use $f(x - 2h)$ and $f(x + 2h)$? Hint: consider the Taylor series up to a sufficiently high power of $h$. Hint: "five-point stencil" (<- På wiki :-) ).
+***
+1. What would happen if we extend the central-difference to also use $f(x - 2h)$ and $f(x + 2h)$? Hint: consider the Taylor series up to a sufficiently high power of $h$. Hint: "five-point stencil".
+
+***
 
 Forward difference (FD) er givet ved
 \begin{align*}
@@ -29,17 +33,10 @@ f(x) = \sum^\infty_{n=0}\frac{f^{(n)}(x_0)}{n!}(x-x_0)^n
 \end{align*}
 og benyttes til at approximere funktionerne $f(x\pm h)$ og $f(x\pm 2h)$.
 \begin{align*}
-  f(x+h)  &= f(x) + hf'(x) + \frac{1}{2}h^2f''(x) 
-            + \frac{1}{6}h^3f^{(3)}(x) + \frac{1}{24}h^4f^{(4)}(x)                 + \frac{1}{120}h^5f^{(5)}(x)+O(h^6)\\
-  f(x-h)  &= f(x) - hf'(x) + \frac{1}{2}h^2f''(x) 
-            - \frac{1}{6}h^3f^{(3)}(x) + \frac{1}{24}h^4f^{(4)}(x) 
-            - \frac{1}{120}h^5f^{(5)}(x)+O(h^6)\\
-  f(x+2h) &= f(x) + 2hf'(x) +2h^2f''(x) + \frac{4}{3}h^3f^{(3)}(x)
-            + \frac{2}{3}h^4f^{(4)}(x) + \frac{4}{15}h^5f^{(5)}(x)
-            + O(h^6)\\
-  f(x-2h) &= f(x) - 2hf'(x) +2h^2f''(x) - \frac{4}{3}h^3f^{(3)}(x)
-            + \frac{2}{3}h^4f^{(4)}(x) - \frac{4}{15}h^5f^{(5)}(x)
-            + O(h^6)\\
+  f(x\pm h)  &= f(x) \pm hf'(x) + \frac{1}{2}h^2f''(x) 
+            \pm \frac{1}{6}h^3f^{(3)}(x) + O(h^4)\\
+  f(x\pm 2h) &= f(x) \pm 2hf'(x) +2h^2f''(x)
+            \pm \frac{4}{3}h^3f^{(3)}(x) + O(h^4)
 \end{align*}
 Bestemmer $D_1 = f(x+h) - f(x-h)$ og $D_2 = f(x+2h) - f(x-2h)$ (Op til $O(h^4)$).
 \begin{align*}
@@ -54,7 +51,10 @@ For at eliminere leddene med $h^3$, bestemmes $8D_1-D_2$ og $f'(x)$ isoleres.
   &= \frac{8( f(x+h) - f(x-h) ) - ( f(x+2h) - f(x-2h) )}{12h} - O(h^3)
 \end{align*}
 
+***
 2. Analyse this method in comparison with FD and CD (theoretically and practically on specific examples).
+
+***
 
 Idet vi er interesseret i $h\to 0$ gælder der specielt for $h<1$ at, $$h>h^2>h^3>\cdots$$. 
 
@@ -120,15 +120,17 @@ lines(log10(h) , log10( abs(CDPlot - df.exact(x)) ) ,
 
 lines(log10(h) , log10( abs(FDPlot - df.exact(x)) ) , 
       col = "red")
-legend(-16, -8, legend=c("FD", "CD" , "ExpCD"),
+legend(-16, -9.5, legend=c("FD", "CD" , "ExpCD"),
        col=c("red", "blue" , "green" ), lty=1, cex=0.8)
 
 ```
 
 Det ses at for tilpas store $h$ (ca. $h=10^{-6}$), vil den udvidede CD være et bedre approksimat af $f'(x)$ end CD og FD, idet afvigelsen for disse værdier af $h$, er lavere end CD og FD (se grøn kurve). For dette eksempel (Dim = 1) ses det at ExpCD kræver 4 funktionsevalueringer, hvilket er dobbelt så mange som for både FD og CD. 
 
+***
 3. What are the advantages and disadvantages of the different finite difference methods?
 
+***
 (Denne opgave er skrevet ind i opgave 1.2)
 
 
@@ -148,7 +150,7 @@ class(x) = "ADnum"
 return(x)
 }
 
-# Definere hvad der forstås ved at printe et ADnum
+# Definerer hvad der forstås ved at printe et ADnum
 print.ADnum = function(x, ...) {
 cat("value = ", x$val,
 " and deriv = ", x$deriv, "\n", sep = "")
@@ -260,6 +262,36 @@ time_end <- proc.time()
 time_duration <- time_end - time_begin
 time_duration_secs <- time_duration["user.self"]
 time_duration_secs
+```
+
+
+TEST
+```{r}
+f <- function(x) x^2
+g <- function(x) 2*x
+
+
+steepest_descent <- function(f, g, x_k, alpha, c, rho, tol, k_max) {
+  k <- 0
+	g_k <- tol + 1 # For at komme i gang
+	curve(f, from = -3 , to = 3)
+	while ((abs(g_k) > tol) & (k < k_max)) { # Type 2 er for vektorer
+		g_k <- g(x_k)
+		p_k <- -g_k 
+	  alpha_k <- backtracking_line_search(alpha, c, rho, x_k, p_k, g_k, f)
+		x_old <- x_k
+		x_k <- x_k + alpha_k * p_k
+		k <- k + 1
+		
+		lines(c(x_old,f(x_old)) , c(x_k,f(x_k)) , col = "red")
+	}
+	
+	printfln("k = %d \t x_k = %6.3f \t f_k = %.2f \t g_k = %8.3f \t alpha_k = %.5f", k, x_k, f(x_k), g_k, alpha_k)
+	
+	return(x_k)
+}
+
+x_sol <- steepest_descent(f,g,-3,1,1e-4,0.5,1e-4,1000)
 ```
 
 
