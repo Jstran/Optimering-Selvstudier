@@ -269,8 +269,8 @@ time_duration_secs
 
 TEST
 ```{r}
-f <- function(x) 2*x^2+3
-g <- function(x) 4*x
+f <- function(x) x^2
+g <- function(x) 2*x
 
 backtracking_line_search <- function(alpha, c, rho, x_k, p_k, g_k, f) {
 	alpha_k <- alpha
@@ -302,12 +302,12 @@ steepest_descent <- function(f, g, x_k, alpha, c, rho, tol, k_max) {
 	
 	return(x_k)
 }
-steepest_descent_CD <- function(f, g, x_k, alpha, c, rho, tol, k_max) {
+steepest_descent_CD <- function(f, x_k, alpha, c, rho, tol, k_max) {
   k <- 0
 	g_k <- tol + 1 # For at komme i gang
 	curve(f, from = -4 , to = 4)
 	while ((abs(g_k) > tol) & (k < k_max)) { # Type 2 er for vektorer
-		g_k <- g(x_k)
+		g_k <- CD(x_k,1e-04)
 		p_k <- -g_k 
 	  alpha_k <- backtracking_line_search(alpha, c, rho, x_k, p_k, g_k, f)
 		x_old <- x_k
@@ -323,7 +323,8 @@ steepest_descent_CD <- function(f, g, x_k, alpha, c, rho, tol, k_max) {
 }
 
 
-x_sol <- steepest_descent(f,g,-2.6,0.9,1e-4,0.5,1e-4,1000)
+x_sol   <- steepest_descent(f,g,-2,0.9,1e-4,0.5,1e-4,1000)
+x_solCD <- steepest_descent_CD(f,-2,0.9,1e-4,0.5,1e-4,1000)
 ```
 
 
