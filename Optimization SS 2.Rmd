@@ -147,6 +147,8 @@ legend(-16, -9.5, legend=c("FD", "CD" , "ExpCD"),
 
 Det ses at for tilpas store $h$ (ca. $h=10^{-6}$), vil den udvidede CD være et bedre approksimat af $f'(x)$ end CD og FD, idet afvigelsen for disse værdier af $h$, er lavere end CD og FD (se grøn kurve). For dette eksempel (Dim = 1) ses det at ExpCD kræver 4 funktionsevalueringer, hvilket er dobbelt så mange som for både FD og CD. 
 
+test test test
+
 ***
 3. What are the advantages and disadvantages of the different finite difference methods?
 Testtekst
