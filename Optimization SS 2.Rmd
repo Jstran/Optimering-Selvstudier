@@ -82,6 +82,35 @@ Trunkeringsfejlene for de forskellige metoder er givet ved.
 - CD er $O(h^2)$
 - Udvidet CD er $O(h^3)$
 
+
+**Afrundingsfejl**
+
+Betragtes forward difference 
+\begin{align*}
+    f'(x)\approx \frac{f(x+h)-f(x)}{h},
+\end{align*}
+hvor det antages at $x$ og $(x+h)$ er udregnet eksakte. 
+Ved at evaluere $f(x)$ vil der komme en afrundingsfejl (round-off error) og dermed fås
+\begin{align*}
+    \frac{f(x+h)(1 + \delta_1)-f(x)(1 + \delta_2)}{h} = \frac{f(x+h)-f(x)}{h}+\frac{\delta_1f(x+h)-\delta_2f(x)}{h},
+\end{align*}
+hvor $\delta_1f(x+h)$ angiver afrundingsfejlen forbundet med evelueringen af $f(x+h)$, og $\delta_2f(x)$ angiver afrundingsfejlen forbundet med evelueringen af $f(x)$ og dermed angiver den sidste brøk den samlede afrundsingsfejl for forward difference.
+
+Groft estimeret er $|\delta_i|\leq \varepsilon_M$ for $i \in \{1,2\}$, hvor $\varepsilon_M$ er machine epsilon. Ved omskrivning haves det, at afrundingsfejlen er givet ved
+\begin{align*}
+    \frac{\delta_1 f(x + h) - \delta_2 f(x)}{h} & \leq \frac{| \delta_1 f(x + h) - \delta_2 f(x) |}{h}\\
+     &\leq \frac{| \delta_1 f(x + h) | + | -\delta_2 f(x) |}{h}\\
+     &= \frac{| \delta_1 | | f(x + h) | + | \delta_2 | | f(x) |}{h}\\
+     &\leq \frac{\varepsilon_M(| f(x + h) | + |f(x) |)}{h}.
+\end{align*}
+Dette medfører at afrundingsfejlen er $O(\frac{\varepsilon_M}{h})$.
+
+Det bemærkes at denne samme afrudningsfejl gør sig gældende for de to andre metoder (CD og udvidet CD).
+
+Det ses at for $h \to 0$ vil afrundingsfejlen blive større og større. Det betyder, at størrelsen på $h$ har den modsatteeffekt i forhold til trunkeringsfejlen. Der skal altså betragtes et trade-off mellem størrelsen af trunkeringsfejlen og størrelsen af afrundingsfejlen i forhold til størrelsen af $h$, idet summen af de to fejltyper tilsammen giver den totale fejl. 
+
+
+
 For at sammenligne antal funktionsevalueringer opskrives de forskellige metoder for $x \in \mathbb R^n$.
 
 Forward difference:
