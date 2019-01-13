@@ -6,6 +6,8 @@ output: html_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library("microbenchmark")
+printf <- function(...) cat(sprintf(...))
+printfln <- function(...) cat(sprintf(...), "\n")
 ```
 
 # Exercise 1
@@ -267,14 +269,24 @@ time_duration_secs
 
 TEST
 ```{r}
-f <- function(x) x^2
-g <- function(x) 2*x
+f <- function(x) 2*x^2+3
+g <- function(x) 4*x
 
+backtracking_line_search <- function(alpha, c, rho, x_k, p_k, g_k, f) {
+	alpha_k <- alpha
+	repeat { 
+		lhs <- f(x_k + alpha_k * p_k)
+		rhs <- f(x_k) + c * alpha_k * g_k %*% p_k
+		if (lhs <= rhs) break
+		alpha_k <- rho * alpha_k
+	}
+	return(alpha_k)
+}
 
 steepest_descent <- function(f, g, x_k, alpha, c, rho, tol, k_max) {
   k <- 0
 	g_k <- tol + 1 # For at komme i gang
-	curve(f, from = -3 , to = 3)
+	curve(f, from = -4 , to = 4)
 	while ((abs(g_k) > tol) & (k < k_max)) { # Type 2 er for vektorer
 		g_k <- g(x_k)
 		p_k <- -g_k 
@@ -283,7 +295,26 @@ steepest_descent <- function(f, g, x_k, alpha, c, rho, tol, k_max) {
 		x_k <- x_k + alpha_k * p_k
 		k <- k + 1
 		
-		lines(c(x_old,f(x_old)) , c(x_k,f(x_k)) , col = "red")
+		lines(c(x_old,x_k) , c(f(x_old),f(x_k)) , col = "red")
+	}
+	
+	printfln("k = %d \t x_k = %6.3f \t f_k = %.2f \t g_k = %8.3f \t alpha_k = %.5f", k, x_k, f(x_k), g_k, alpha_k)
+	
+	return(x_k)
+}
+steepest_descent_CD <- function(f, g, x_k, alpha, c, rho, tol, k_max) {
+  k <- 0
+	g_k <- tol + 1 # For at komme i gang
+	curve(f, from = -4 , to = 4)
+	while ((abs(g_k) > tol) & (k < k_max)) { # Type 2 er for vektorer
+		g_k <- g(x_k)
+		p_k <- -g_k 
+	  alpha_k <- backtracking_line_search(alpha, c, rho, x_k, p_k, g_k, f)
+		x_old <- x_k
+		x_k <- x_k + alpha_k * p_k
+		k <- k + 1
+		
+		lines(c(x_old,x_k) , c(f(x_old),f(x_k)) , col = "red")
 	}
 	
 	printfln("k = %d \t x_k = %6.3f \t f_k = %.2f \t g_k = %8.3f \t alpha_k = %.5f", k, x_k, f(x_k), g_k, alpha_k)
@@ -291,7 +322,8 @@ steepest_descent <- function(f, g, x_k, alpha, c, rho, tol, k_max) {
 	return(x_k)
 }
 
-x_sol <- steepest_descent(f,g,-3,1,1e-4,0.5,1e-4,1000)
+
+x_sol <- steepest_descent(f,g,-2.6,0.9,1e-4,0.5,1e-4,1000)
 ```
 
 
