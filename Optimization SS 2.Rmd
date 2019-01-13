@@ -149,7 +149,7 @@ Det ses at for tilpas store $h$ (ca. $h=10^{-6}$), vil den udvidede CD være et 
 
 ***
 3. What are the advantages and disadvantages of the different finite difference methods?
-
+Testtekst
 ***
 (Denne opgave er skrevet ind i opgave 1.2)
 
