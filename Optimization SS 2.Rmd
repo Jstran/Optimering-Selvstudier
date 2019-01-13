@@ -43,7 +43,7 @@ Taylors formel benyttes til at approximere funktionerne $f(x\pm h)$ og $f(x\pm 2
   f(x\pm 2h) &= f(x) \pm 2hf'(x) +2h^2f''(x)
             \pm \frac{4}{3}h^3f^{(3)}(x) + O(h^4)
 \end{align*}
-Bestemmer $D_1 = f(x+h) - f(x-h)$ og $D_2 = f(x+2h) - f(x-2h)$ (Op til $O(h^4)$).
+Bestemmer $D_1 = f(x+h) - f(x-h)$ og $D_2 = f(x+2h) - f(x-2h)$.
 \begin{align*}
   D_1 &= 2hf'(x) + \frac{1}{3}h^3f^{(3)}(x) + O(h^4)\\
   D_2 &= 4hf'(x) + \frac{8}{3}h^3f^{(3)}(x) + O(h^4)
@@ -61,42 +61,57 @@ For at eliminere leddene med $h^3$, bestemmes $8D_1-D_2$ og $f'(x)$ isoleres.
 
 ***
 
-Idet vi er interesseret i $h\to 0$ gælder der specielt for $h<1$ at, $$h>h^2>h^3>\cdots$$. 
+For at sammenligne de forskellige metoder, betragtes de tilhørende trunkeringsfejl.
 
+For at bestemme trunkleringsfejlen for \textit{forward difference} betragtes Taylorudvidelsen hvor $f'(x)$ er isoleret:
+\begin{align*}
+f'(x)=\frac{f(x+h) - f(x)}{h} - \frac{1}{2} h f''(x) - \frac{1}{6} h^2 f^{(3)}(x) - O(h^3).
+\end{align*}
 
-Trunkeringsfejlen er givet ved
-$$c_1h + c_2h^2 + \cdots$$
-Fejlen angives som store-O af $h$ i den laveste potens, idet $h<1$.
+Trunkeringsfejlen som en funktion af $h$ er givet ved
+$$c_1 h + c_2 h^2 + \cdots.$$ 
+Idet vi er interesseret i $h \to 0$. Specielt gælder der for $h < 1$ at, $$h > h^2 > h^3 > \cdots.$$
+Dette betyder at trunkeringsfejlen er givet ved
+\begin{align*}
+    O(h)
+\end{align*}
+Trunkeringsfejlen angives som store-$O$ af $h$ i den laveste potens, idet vi kun er interesseret i $h < 1$.
+At trunkeringsfejlen er store-$O$ af $h$, betyder, at der eksisterer en konstant $M$, sådan at
+\begin{align*}
+    | c_1 h + c_2 h^2 + \cdots | \leq M \cdot h.
+\end{align*}
 
-For at sammenligne metoderne, betragtes deres trunkeringsfejl. 
+Trunkeringsfejlene for de forskellige metoder er givet ved. 
 
 - FD er $O(h)$
 - CD er $O(h^2)$
 - Udvidet CD er $O(h^3)$
 
-Forward difference
+For at sammenligne antal funktionsevalueringer opskrives de forskellige metoder for $x \in \mathbb R^n$.
+
+Forward difference:
 \begin{align*}
-\frac{\partial f}{\partial x_i}(x)\approx\frac{f(x+\varepsilon e_i) - f(x)}{\varepsilon e_i}, \quad \text{for }i=1,\ldots,n.
+\frac{\partial f}{\partial x_i}(x)\approx\frac{f(x +h e_i) - f(x)}{h e_i}, \quad \text{for }i=1,\ldots,n.
 \end{align*}
 
-Central difference
+Central difference:
 \begin{align*}
-\frac{\partial f}{\partial x_i}(x)\approx\frac{f(x+\varepsilon e_i) - f(x - \varepsilon e_i)}{\varepsilon e_i}, \quad \text{for }i=1,\ldots,n.
+\frac{\partial f}{\partial x_i}(x)\approx\frac{f(x + h e_i) - f(x - h e_i)}{h e_i}, \quad \text{for }i=1,\ldots,n.
 \end{align*}
 
-Udvidet central difference
+Udvidet central difference:
 \begin{align*}
-\frac{\partial f}{\partial x_i}(x)\approx\frac{8( f(x+\varepsilon e_i) - f(x-\varepsilon e_i) ) - ( f(x+2\varepsilon e_i) - f(x-2\varepsilon e_i) )}{12\varepsilon e_i}, \quad\text{for }i=1,\ldots,n
+\frac{\partial f}{\partial x_i}(x)\approx\frac{8( f(x + h e_i) - f(x- h e_i) ) - ( f(x+2 h e_i) - f(x-2 h e_i) )}{12 h e_i}, \quad\text{for }i=1,\ldots,n
 \end{align*}
-Det ses at vores metode har den laveste/bedste trunkeringsfejl. Dette kommer på bekostning af ekstra funktionsevalueringer.
 
-De forskellige metoder kræver forskellinge mængder funktionsevalueringer
+Metoderne kræver følgende antal funktionsevalueringer
 
 - FD kræver $n+1$ funktionsevalueringer
 - CD kræver $2n$ funktionsevalueringer
 - Udvidet CD kræver $4n$ funktionsevalueringer
 
 
+\textbf{Praktisk eksempel for sammenligning af metoderne}
 ```{r}
 eps <- .Machine$double.eps
 x <- pi/3
