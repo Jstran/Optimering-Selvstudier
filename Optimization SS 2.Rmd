@@ -184,11 +184,14 @@ Det ses at for tilpas store $h$ (ca. $h=10^{-6}$), vil den udvidede CD være et 
 
 # Exercise 2
 
+***
 Implement algorithmic differentiation (AD) for univariate ($\mathbb{R} \to \mathbb{R}$) functions in `R` (supporting the following operations: `+`, `-`, `*`, `/`, `sin`, `cos`, `exp`). Use on the following problem and compare it with other ways of calculating the derivatives:
 
 \[
   f(x) = \cos[ \sin(x) \cos(x) ]
 \]
+
+***
 
 ```{r}
 # Definerer hvad et "ADnum" er.
@@ -236,9 +239,7 @@ return(create_ADnum(e1$val * e2$val, e1$deriv*e2$val + e2$deriv*e1$val))
 if (.Generic == "/") {
 return(create_ADnum(e1$val / e2$val, (e1$deriv*e2$val - e2$deriv*e1$val)/e2$val^2))
 }
-if (.Generic == "^") {
-return(create_ADnum(e1$value^e2$value, e2$value*e1$value^(e2$value - 1) ))
-}
+  
 stop("Function ’", .Generic, "’ not yet implemented for ADnum")
 }
 
