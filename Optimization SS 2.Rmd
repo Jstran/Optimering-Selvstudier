@@ -222,22 +222,22 @@ e2 = create_ADnum(e2, 0)
 
 # Definerer hvordan man adderer ADnums
 if (.Generic == "+") {
-return(create_ADnum(e1$val + e2$val, (e1$deriv + e2$deriv)))
+return(create_ADnum(e1$val + e2$val, e1$deriv + e2$deriv) )
 }
   
 # Definerer hvordan man subtraherer ADnums
 if (.Generic == "-") {
-return(create_ADnum(e1$val - e2$val, (e1$deriv - e2$deriv)))
+return(create_ADnum(e1$val - e2$val, e1$deriv - e2$deriv) )
 }
   
 # Definerer hvordan man ganger ADnums (Produktregel) 
 if (.Generic == "*") {
-return(create_ADnum(e1$val * e2$val, e1$deriv*e2$val + e2$deriv*e1$val))
+return(create_ADnum(e1$val * e2$val, e1$deriv*e2$val + e1$val*e2$deriv) )
 }
 
 # Definerer hvordan man dividerer ADnums (Brøkregel)  
 if (.Generic == "/") {
-return(create_ADnum(e1$val / e2$val, (e1$deriv*e2$val - e2$deriv*e1$val)/e2$val^2))
+return(create_ADnum(e1$val / e2$val, (e1$deriv*e2$val - e1$val*e2$deriv)/e2$val^2) )
 }
   
 stop("Function ’", .Generic, "’ not yet implemented for ADnum")
@@ -257,22 +257,24 @@ else if (.Generic == "exp") {
 
 stop("Function ’", .Generic, "’ not yet implemented for ADnum")
 }
+```
 
+```{r}
+f <- function(x) cos(sin(x)*cos(x))
+g_exact <- function(x) -(cos(x)^2-sin(x)^2)*sin(sin(x)*cos(x))
 
-x <- create_ADnum(pi/2)
+x <- pi/2
+h <- 10^-5
 
-cos(sin(cos(x)))
-
-
-y <- create_ADnum(cos(x$val), -sin(x$val)*x$deriv)
-cos(y)
-
-z <- create_ADnum(sin(y$val), cos(y$val)*y$deriv)
-cos(z)
-
-f <- function(x){cos(sin(cos(x)))}
 f(x)
+g_exact(x)
 
+x <- create_ADnum(x)
+
+f(x)
+FD(x$val , h)
+CD(x$val , h)
+ExpCD(x$val , h)
 ```
 
 
