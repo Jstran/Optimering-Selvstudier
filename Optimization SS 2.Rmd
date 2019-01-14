@@ -110,7 +110,8 @@ Det bemærkes at denne samme afrudningsfejl gør sig gældende for de to andre m
 Det ses at for $h \to 0$ vil afrundingsfejlen blive større og større. Det betyder, at størrelsen på $h$ har den modsatteeffekt i forhold til trunkeringsfejlen. Der skal altså betragtes et trade-off mellem størrelsen af trunkeringsfejlen og størrelsen af afrundingsfejlen i forhold til størrelsen af $h$, idet summen af de to fejltyper tilsammen giver den totale fejl. 
 
 
-**funktionsevalueringer**
+**Funktionsevalueringer**
+
 For at sammenligne antal funktionsevalueringer opskrives de forskellige metoder for $x \in \mathbb R^n$.
 
 Forward difference:
@@ -175,8 +176,9 @@ Det ses at for tilpas store $h$ (ca. $h=10^{-6}$), vil den udvidede CD være et 
 
 ***
 3. What are the advantages and disadvantages of the different finite difference methods?
-Testtekst
+
 ***
+
 (Denne opgave er skrevet ind i opgave 1.2)
 
 
