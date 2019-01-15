@@ -124,6 +124,7 @@ c <- tol <- 1e-4
 rho <- 0.5
 k_max <- 100000
 
+
 DFP(f, g, x_k, alpha, c, rho, tol, k_max)
 BFGS(f, g, x_k, alpha, c, rho, tol, k_max)
 ```
