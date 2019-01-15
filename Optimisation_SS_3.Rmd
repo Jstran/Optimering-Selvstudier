@@ -58,43 +58,74 @@ H = function(x)
 Implement BFGS, DFP and SR1 (as line search).
 ```{r}
 # Definerer lige noget line-search (Der er Wolfe i)
-backtracking_line_search <- function(a, c, r, x_k, p_k, g_k, f_k, f) {
-	a_k <- a
-	repeat {
-		x_candidate <- x_k + a_k * p_k
-		lhs <- f(x_candidate)
-		rhs <- f_k + c * a_k * g_k * p_k
+backtracking_line_search <- function(alpha, c, rho, x_k, p_k, g_k, f) {
+	alpha_k <- alpha
+	repeat { 
+		lhs <- f(x_k + alpha_k * p_k)
+		rhs <- f(x_k) + c * alpha_k * g_k %*% p_k
 		if (lhs <= rhs) break
-		a_k <- r * a_k
+		alpha_k <- rho * alpha_k
 	}
-	return(a_k)
+	return(alpha_k)
 }
 
 # Implementation af BFGS
-a <- 1    # initial step-length
-c <- 1e-4 # Sufficient Decrease Condition (SDC) Strength
-r <- 0.75 # step-length reduction factor
-x_k <- c(1,2) # Startpunkt
-n <- length(x_k)
-tol <- 1e-10
-H_k <- H(x_k)
-k <- 0
-
-while(sqrt(sum(g(x_k)^2)) > tol){
-  p_k <- -H_k%*%g(x_k)
-  g_k <- g(x_k)
-  f_k <- f(x_k)
-  a <- backtracking_line_search(a, c, r, x_k, p_k, g_k, f_k, f) 
-  x_temp <-   
-  x_k <- x_k + a*p_k
-  s_k <- x_k - x_temp
-  y_k <- g(x_k) - g(x_temp)
-  
-  rho <- as.vector(1/(t(y_k)%*%s_k))
-  H_k <- (diag(n) - p_k*s_k*y_k)
-  k <- k + 1
-  
+BFGS <- function(f, g, x_k, alpha, c, rho, tol, k_max){
+  k <- 0
+  n <- length(x_k)
+  H_k <- I_n <- diag(n)
+  g_k <- tol + 1
+  while (norm(g_k, type="2") > tol & k < k_max) {
+    g_k <- g(x_k)
+    f_k <- f(x_k)
+    p_k <- -  H_k %*% g_k
+    alpha_k <- backtracking_line_search(alpha, c, rho, x_k, p_k, g_k, f)
+    x_old <- x_k
+    x_k <- x_k + alpha_k * p_k
+    s_k <- x_k - x_old
+    y_k <- g(x_k) - g_k
+    rho_k <- 1 / (t(y_k) %*% s_k)
+    H_k <- (I_n - rho_k * s_k %*% t(y_k)) %*% H_k %*% (I_n - rho_k * s_k %*% t(y_k)) + rho_k * s_k %*% t(s_k)
+    k <- k + 1
+  }
+printfln("k = %d \t x_k = (%6.3f , %6.3f) \t f_k = %.2f \t g_k = (%8.3f , %8.3f) \t alpha_k = %.5f", k, x_k[1] , x_k[2], f(x_k), g_k[1] , g_k[2], alpha_k)
+  return(x_k)
 }
+
+# Implementation af DFP
+DFP <- function(f, g, x_k, alpha, c, rho, tol, k_max){
+  k <- 0
+  n <- length(x_k)
+  H_k <- I_n <- diag(n)
+  g_k <- tol + 1
+  while (norm(g_k, type="2") > tol & k < k_max) {
+    g_k <- g(x_k)
+    f_k <- f(x_k)
+    p_k <- -  H_k %*% g_k
+    alpha_k <- backtracking_line_search(alpha, c, rho, x_k, p_k, g_k, f)
+    x_old <- x_k
+    x_k <- x_k + alpha_k * p_k
+    s_k <- x_k - x_old
+    y_k <- g(x_k) - g_k
+    H_k <- H_k - (H_k %*% y_k %*% t(y_k) %*% H_k) / (t(y_k) %*% H_k %*% y_k) + (s_k %*% t(s_k)) / (t(y_k) %*% s_k)
+    k <- k + 1
+  }
+printfln("k = %d \t x_k = (%6.3f , %6.3f) \t f_k = %.2f \t g_k = (%8.3f , %8.3f) \t alpha_k = %.5f", k, x_k[1] , x_k[2], f(x_k), g_k[1] , g_k[2], alpha_k)
+  return(x_k)
+}
+
+
+```
+
+```{r}
+x_k <- c(5,5)
+alpha <- 0.9
+c <- tol <- 1e-4
+rho <- 0.5
+k_max <- 100000
+
+DFP(f, g, x_k, alpha, c, rho, tol, k_max)
+BFGS(f, g, x_k, alpha, c, rho, tol, k_max)
 ```
 Compare those with the gradient descent, Nelder-Mead (possibly by `optim(..., method = "Nelder-Mead")`) and `R`'s own BFGS implementation (`optim(..., method = "BFGS")`) on the problems given above: What are the differences? What is the performance difference (number of iterations, execution time e.g. `system.time`)? What impact does the choice of initial matrix (and possibly using (6.20)) have on the quasi-Newton methods?
 
