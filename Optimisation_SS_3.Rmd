@@ -5,6 +5,8 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+printf <- function(...) cat(sprintf(...))
+printfln <- function(...) cat(sprintf(...), "\n")
 ```
 
 # Sample problems
@@ -84,8 +86,8 @@ BFGS <- function(f, g, x_k, alpha, c, rho, tol, k_max){
     x_k <- x_k + alpha_k * p_k
     s_k <- x_k - x_old
     y_k <- g(x_k) - g_k
-    rho_k <- 1 / (t(y_k) %*% s_k)
-    H_k <- (I_n - rho_k * s_k %*% t(y_k)) %*% H_k %*% (I_n - rho_k * s_k %*% t(y_k)) + rho_k * s_k %*% t(s_k)
+    rho_k <- 1 / (t(y_k) %*% s_k)[1]
+    H_k <- (I_n - rho_k * (s_k %*% t(y_k))[1]) %*% H_k %*% (I_n - rho_k * (s_k %*% t(y_k))[1]) + rho_k * (s_k %*% t(s_k))[1]
     k <- k + 1
   }
 printfln("k = %d \t x_k = (%6.3f , %6.3f) \t f_k = %.2f \t g_k = (%8.3f , %8.3f) \t alpha_k = %.5f", k, x_k[1] , x_k[2], f(x_k), g_k[1] , g_k[2], alpha_k)
@@ -107,7 +109,7 @@ DFP <- function(f, g, x_k, alpha, c, rho, tol, k_max){
     x_k <- x_k + alpha_k * p_k
     s_k <- x_k - x_old
     y_k <- g(x_k) - g_k
-    H_k <- H_k - (H_k %*% y_k %*% t(y_k) %*% H_k) / (t(y_k) %*% H_k %*% y_k) + (s_k %*% t(s_k)) / (t(y_k) %*% s_k)
+    H_k <- H_k - (H_k %*% y_k %*% t(y_k) %*% H_k) / (t(y_k) %*% H_k %*% y_k)[1] + (s_k %*% t(s_k)) / (t(y_k) %*% s_k)[1]
     k <- k + 1
   }
 printfln("k = %d \t x_k = (%6.3f , %6.3f) \t f_k = %.2f \t g_k = (%8.3f , %8.3f) \t alpha_k = %.5f", k, x_k[1] , x_k[2], f(x_k), g_k[1] , g_k[2], alpha_k)
@@ -119,14 +121,15 @@ printfln("k = %d \t x_k = (%6.3f , %6.3f) \t f_k = %.2f \t g_k = (%8.3f , %8.3f)
 
 ```{r}
 x_k <- c(5,5)
-alpha <- 0.9
-c <- tol <- 1e-4
+alpha <- 1
+c <- 1e-4
+tol <- 1e-8
 rho <- 0.5
 k_max <- 100000
 
-
 DFP(f, g, x_k, alpha, c, rho, tol, k_max)
 BFGS(f, g, x_k, alpha, c, rho, tol, k_max)
+optim(x_k, f, g, method = "BFGS")
 ```
 Compare those with the gradient descent, Nelder-Mead (possibly by `optim(..., method = "Nelder-Mead")`) and `R`'s own BFGS implementation (`optim(..., method = "BFGS")`) on the problems given above: What are the differences? What is the performance difference (number of iterations, execution time e.g. `system.time`)? What impact does the choice of initial matrix (and possibly using (6.20)) have on the quasi-Newton methods?
 
