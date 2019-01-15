@@ -325,8 +325,7 @@ time_duration_secs
 
 
 ```{r}
-#f <- function(x) (1-x[1]^2) + 100*(x[2]-x[1]^2)^2
-#g <- function(x) c(2*(200*x[1]^3-200*x[1]*x[2]+x[1]-1) , 200*(x[2]-x[1]^2))
+
 f <- function(x) (5*x[1]^2 + x[2]^2)/2
 g <- function(x) c(5*x[1],x[2])
 
@@ -395,16 +394,17 @@ steepest_descent <- function(f, x_k, alpha, c, rho, tol, k_max,FUN) {
 		k <- k + 1
 		
 		lines(c(x_old[1],x_k[1]) , c(x_old[2],x_k[2]) , col = "red")
+		
 	}
+	printfln("k = %d \t x_k = (%6.3f , %6.3f) \t f_k = %.2f \t g_k = (%8.3f , %8.3f) \t ", k, x_k[1] , x_k[2], f(x_k), g_k[1] , g_k[2])
 	
-	printfln("k = %d \t x_k = (%6.3f , %6.3f) \t f_k = %.2f \t g_k = (%8.3f , %8.3f) \t alpha_k = %.5f", k, x_k[1] , x_k[2], f(x_k), g_k[1] , g_k[2], alpha_k)
 	
 	return(x_k)
 }
 ```
 
 ```{r}
-x_k <- c(1,1)
+x_k <- c(1000,1000)
 alpha <- 0.3
 c <- tol <- 1e-4
 rho <- 0.5
@@ -435,7 +435,8 @@ steepest_descentnp <- function(f, x_k, alpha, c, rho, tol, k_max,FUN) {
 microbenchmark(
 steepest_descentnp(f, x_k , alpha , c , rho , tol , k_max , g) ,
 steepest_descentnp(f, x_k , alpha , c , rho , tol , k_max , FDm) ,
-steepest_descentnp(f, x_k , alpha , c , rho , tol , k_max , ExpCDm)
+steepest_descentnp(f, x_k , alpha , c , rho , tol , k_max , ExpCDm) ,
+unit = "ms"
 )
 ```
 
