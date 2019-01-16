@@ -46,7 +46,6 @@ Exercises:
 ***
 ```{r}
 f <- function(ab){
-  sum = 0
   n <- length(cars$dist)
   s <- cars$speed
   d <- cars$dist
