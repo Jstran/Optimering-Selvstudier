@@ -53,9 +53,8 @@ BFGS <- function(f, g, x_k, alpha, c, rho, tol, k_max){
     g_k <- g(x_k)
     p_k <- -  H_k %*% g_k
     alpha_k <- backtracking_line_search(alpha, c, rho, x_k, p_k, g_k, f)
-    x_old <- x_k
     x_k <- x_k + alpha_k * p_k
-    s_k <- x_k - x_old
+    s_k <- alpha_k * p_k
     y_k <- g(x_k) - g_k
     rho_k <- 1 / (t(y_k) %*% s_k)[1]
     H_k <- (I_n - rho_k * (s_k %*% t(y_k))[1]) %*% H_k %*% (I_n - rho_k * (s_k %*% t(y_k))[1]) + rho_k * (s_k %*% t(s_k))[1]
@@ -73,9 +72,8 @@ BFGS_620 <- function(f, g, x_k, alpha, c, rho, tol, k_max){
   g_k <- g(x_k)
     p_k <- -  H_k %*% g_k
     alpha_k <- backtracking_line_search(alpha, c, rho, x_k, p_k, g_k, f)
-    x_old <- x_k
     x_k <- x_k + alpha_k * p_k
-    s_k <- x_k - x_old
+    s_k <- alpha_k * p_k
     y_k <- g(x_k) - g_k
     H_k <- ((t(y_k) %*% s_k)[1]) / ((t(y_k) %*% y_k)[1]) * I_n
     k <- 1
@@ -83,9 +81,8 @@ BFGS_620 <- function(f, g, x_k, alpha, c, rho, tol, k_max){
     g_k <- g(x_k)
     p_k <- -  H_k %*% g_k
     alpha_k <- backtracking_line_search(alpha, c, rho, x_k, p_k, g_k, f)
-    x_old <- x_k
     x_k <- x_k + alpha_k * p_k
-    s_k <- x_k - x_old
+    s_k <- alpha_k * p_k
     y_k <- g(x_k) - g_k
     rho_k <- 1 / (t(y_k) %*% s_k)[1]
     H_k <- (I_n - rho_k * (s_k %*% t(y_k))[1]) %*% H_k %*% (I_n - rho_k * (s_k %*% t(y_k))[1]) + rho_k * (s_k %*% t(s_k))[1]
@@ -106,9 +103,8 @@ DFP <- function(f, g, x_k, alpha, c, rho, tol, k_max){
     g_k <- g(x_k)
     p_k <- -  H_k %*% g_k
     alpha_k <- backtracking_line_search(alpha, c, rho, x_k, p_k, g_k, f)
-    x_old <- x_k
-    x_k <- x_k + alpha_k * p_k
-    s_k <- x_k - x_old
+   x_k <- x_k + alpha_k * p_k
+    s_k <- alpha_k * p_k
     y_k <- g(x_k) - g_k
     H_k <- H_k - (H_k %*% y_k %*% t(y_k) %*% H_k) / (t(y_k) %*% H_k %*% y_k)[1] + (s_k %*% t(s_k)) / (t(y_k) %*% s_k)[1]
     k <- k + 1
