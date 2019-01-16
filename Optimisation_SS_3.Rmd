@@ -15,21 +15,16 @@ library(microbenchmark)
 Use the problems below in the exercises.
 
 ```{r}
-###########################################
-# Convex Elliptical Objective Function
-###########################################
-f = function(x) 0.5*(100*x[1]^2 + x[2]^2)
-f_xy = function(x,y) 0.5*(100*x^2 + y^2)
-x_min_true = c(0, 0)
-
 # analytic derivatives
-g = function(x) c(0.5*200*x[1], 0.5*2*x[2])
 H = function(x) 0.5*rbind(c(200, 0), c(0, 2))
 ```
 
 # Exercise 1: BFGS, DFP and SR1
 
+***
 Implement BFGS, DFP and SR1 (as line search).
+
+***
 ```{r}
 # Implementation af backtracking
 backtracking_line_search <- function(alpha, c, rho, x_k, p_k, g_k, f) {
@@ -64,7 +59,6 @@ BFGS <- function(f, g, x_k, alpha, c, rho, tol, k_max){
   return(sol)
 }
 
-
 # Implementation af BFGS opdatering
 BFGS_620 <- function(f, g, x_k, alpha, c, rho, tol, k_max){
   n <- length(x_k)
@@ -92,7 +86,6 @@ sol <- list(par = x_k , func = f(x_k) , grad = g_k , iter = k)
   return(sol)
 }
 
-
 # Implementation af DFP
 DFP <- function(f, g, x_k, alpha, c, rho, tol, k_max){
   k <- 0
@@ -116,20 +109,25 @@ DFP <- function(f, g, x_k, alpha, c, rho, tol, k_max){
 ```
 
 
-
+Undersøger antal iteration for de forskellige metoder. Der benyttes funktionen
+$$f(x_1,x_2) = \frac{1}{2}(100x_1^2+x_2^2),$$ hvor funktionens gradient er udregnet i hånden til at være
+$$\nabla f(x_1,x_2) = \begin{pmatrix}100x_1 \\ x_2\end{pmatrix}.$$
 ```{r}
-x_k <- c(5,1)
-alpha <- 1
+f = function(x) 0.5*(100*x[1]^2 + x[2]^2)
+g = function(x) c(100*x[1], x[2])
+
+x_k <- c(5,1) # Valgt startværdi
+alpha <- 1    
 c <- 1e-4
-tol <- 1e-3
+tol <- 1e-4
 rho <- 0.5
 k_max <- 10000
 
 
-DFP(f, g, x_k, alpha, c, rho, tol, k_max)$iter
-BFGS(f, g, x_k, alpha, c, rho, tol, k_max)$iter
-BFGS_620(f, g, x_k, alpha, c, rho, tol, k_max)$iter
-optim(x_k, f, g, method = "BFGS")$counts
+DFP(f, g, x_k, alpha, c, rho, tol, k_max)$par
+BFGS(f, g, x_k, alpha, c, rho, tol, k_max)$par
+BFGS_620(f, g, x_k, alpha, c, rho, tol, k_max)$par
+optim(x_k, f, g, method = "BFGS")$par
 ```
 ***
 Compare those with the gradient descent, Nelder-Mead (possibly by `optim(..., method = "Nelder-Mead")`) and `R`'s own BFGS implementation (`optim(..., method = "BFGS")`) on the problems given above: What are the differences? What is the performance difference (number of iterations, execution time e.g. `system.time`)? What impact does the choice of initial matrix (and possibly using (6.20)) have on the quasi-Newton methods?
