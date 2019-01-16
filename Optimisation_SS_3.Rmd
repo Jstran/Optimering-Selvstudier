@@ -109,7 +109,6 @@ $$\nabla f(x_1,x_2) = \begin{pmatrix}100x_1 \\ x_2\end{pmatrix}.$$
 
 f = function(x) 100*(x[2] - x[1]^2)^2 + (1 - x[1])^2
 g = function(x) c(2*(x[1] - 1) - 400*x[1]*(x[2] - x[1]^2), 200*(x[2] - x[1]^2))
-Hess = function(x) rbind(c(1200*x[1]^2 - 400*x[2] + 2, -400*x[1]), c(-400*x[1], 200))
 
 x_k <- c(1,2) # Valgt startværdi
 alpha <- 1    
@@ -129,26 +128,6 @@ BFGS    (f, g, x_k, alpha, c, rho, tol, k_max)$iter
 BFGS_620(f, g, x_k, alpha, c, rho, tol, k_max)$iter
 optim   (x_k, f, g, method = "BFGS")$counts
 
-HDFP      <- DFP     (f, g, x_k, alpha, c, rho, tol, k_max)$hess
-HBFGS     <- BFGS    (f, g, x_k, alpha, c, rho, tol, k_max)$hess
-HBFGS_620 <- BFGS_620(f, g, x_k, alpha, c, rho, tol, k_max)$hess
-H <- solve(Hess(c(1,1)))
-
-
-BDFP      <- solve(DFP     (f, g, x_k, alpha, c, rho, tol, k_max)$hess)
-BBFGS     <- solve(BFGS    (f, g, x_k, alpha, c, rho, tol, k_max)$hess)
-BBFGS_620 <- solve(BFGS_620(f, g, x_k, alpha, c, rho, tol, k_max)$hess)
-B <- Hess(c(1,1))
-
-H
-abs(HDFP  -     H)
-abs(HBFGS -     H)
-abs(HBFGS_620 - H)
-
-B
-abs(BDFP  -     B)
-abs(BBFGS -     B)
-abs(BBFGS_620 - B)
 ```
 ***
 Compare those with the gradient descent, Nelder-Mead (possibly by `optim(..., method = "Nelder-Mead")`) and `R`'s own BFGS implementation (`optim(..., method = "BFGS")`) on the problems given above: What are the differences? What is the performance difference (number of iterations, execution time e.g. `system.time`)? What impact does the choice of initial matrix (and possibly using (6.20)) have on the quasi-Newton methods?
@@ -205,10 +184,37 @@ steepest_descent(f, g, x_k, alpha, c, rho, tol, k_max) ,
 times = 10
 )
 ```
-
+***
 # Exercise 2: Inverse Hessian approximations
 
 Investigate (plot, print, ...) the approximations of the Hessian ($B_{k}^{BFGS}$, $B_{k}^{DFP}$, and $B_{SR1}$) and inverse Hessian ($H_{k}^{BFGS}$, $H_{k}^{DFP}$, and $H_{SR1}$) in the optimisation problems given above. Compare to the the exact Hessian (and inverse) and maybe also to approximations by finite differences and/or automatic differentiation (possibly by libraries `numDeriv`/`madness`). (How can you summarise the difference on matrices?)
+
+***
+```{r}
+Hess = function(x) rbind(c(1200*x[1]^2 - 400*x[2] + 2, -400*x[1]), c(-400*x[1], 200))
+
+HDFP      <- DFP     (f, g, x_k, alpha, c, rho, tol, k_max)$hess
+HBFGS     <- BFGS    (f, g, x_k, alpha, c, rho, tol, k_max)$hess
+HBFGS_620 <- BFGS_620(f, g, x_k, alpha, c, rho, tol, k_max)$hess
+H <- solve(Hess(c(1,1)))
+
+
+BDFP      <- solve(DFP     (f, g, x_k, alpha, c, rho, tol, k_max)$hess)
+BBFGS     <- solve(BFGS    (f, g, x_k, alpha, c, rho, tol, k_max)$hess)
+BBFGS_620 <- solve(BFGS_620(f, g, x_k, alpha, c, rho, tol, k_max)$hess)
+B <- Hess(c(1,1))
+
+H
+abs(HDFP  -     H)
+abs(HBFGS -     H)
+abs(HBFGS_620 - H)
+
+B
+abs(BDFP  -     B)
+abs(BBFGS -     B)
+abs(BBFGS_620 - B)
+```
+
 
 # Exercise 3: Self-correcting properties
 
