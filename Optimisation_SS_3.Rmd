@@ -16,17 +16,6 @@ Use the problems below in the exercises.
 
 ```{r}
 ###########################################
-# Rosenbrock Objective Function
-###########################################
-f = function(x) 100*(x[2] - x[1]^2)^2 + (1 - x[1])^2
-f_xy = function(x, y) 100*(y - x^2)^2 + (1 - x)^2
-x_min_true = c(1, 1)
-
-# analytic derivatives
-g = function(x) c(2*(x[1] - 1) - 400*x[1]*(x[2] - x[1]^2), 200*(x[2] - x[1]^2))
-H = function(x) rbind(c(1200*x[1]^2 - 400*x[2] + 2, -400*x[1]), c(-400*x[1], 200))
-
-###########################################
 # Convex Elliptical Objective Function
 ###########################################
 f = function(x) 0.5*(100*x[1]^2 + x[2]^2)
@@ -36,31 +25,13 @@ x_min_true = c(0, 0)
 # analytic derivatives
 g = function(x) c(0.5*200*x[1], 0.5*2*x[2])
 H = function(x) 0.5*rbind(c(200, 0), c(0, 2))
-
-###########################################
-# Nonconvex Sines Objective Function
-###########################################
-'f = function(x) x[1]^2 + .25*x[2]^2 + 4*(x[1] - x[2])^2*sin(x[2])^2
-f_xy = function(x, y) x^2 + .25*y^2 + 4*(x - y)^2*sin(y)^2
-x_min_true = c(0, 0)
-
-# analytic derivatives
-g = function(x) c(2*x[1] + 8*(x[1] - x[2])*sin(x[2])^2, .5*x[2] - 8*(x[1] - x[2])*sin(x[2])^2 + 4*(x[1] - x[2])^2*sin(2*x[2]))
-H = function(x)
-{
-	H11 = 2 + 8*sin(x[2])^2
-	H12 = 8*(2*(x[1] - x[2])*cos(x[2]) - sin(x[2]))*sin(x[2])
-	H21 = H12
-	H22 = 4.5 + 4*(2*(x[1] - x[2])^2 - 1)*cos(2*x[2]) + 16*(x[2] - x[1])*sin(2*x[2])
-	rbind(c(H11, H12), c(H21, H22))
-}'
 ```
 
 # Exercise 1: BFGS, DFP and SR1
 
 Implement BFGS, DFP and SR1 (as line search).
 ```{r}
-# Backtracking
+# Implementation af backtracking
 backtracking_line_search <- function(alpha, c, rho, x_k, p_k, g_k, f) {
 	alpha_k <- alpha
 	repeat { 
