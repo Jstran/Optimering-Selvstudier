@@ -10,15 +10,6 @@ printfln <- function(...) cat(sprintf(...), "\n")
 library(microbenchmark)
 ```
 
-# Sample problems
-
-Use the problems below in the exercises.
-
-```{r}
-# analytic derivatives
-H = function(x) 0.5*rbind(c(200, 0), c(0, 2))
-```
-
 # Exercise 1: BFGS, DFP and SR1
 
 ***
@@ -28,7 +19,7 @@ Implement BFGS, DFP and SR1 (as line search).
 ```{r}
 # Implementation af backtracking
 backtracking_line_search <- function(alpha, c, rho, x_k, p_k, g_k, f) {
-	alpha_k <- alpha
+  alpha_k <- alpha
 	repeat { 
 		lhs <- f(x_k + alpha_k * p_k)
 		rhs <- f(x_k) + c * alpha_k * g_k %*% p_k
@@ -55,7 +46,7 @@ BFGS <- function(f, g, x_k, alpha, c, rho, tol, k_max){
     H_k <- (I_n - rho_k*s_k%*%t(y_k))%*%H_k%*%(I_n - rho_k*y_k%*%t(s_k)) + rho_k*s_k%*%t(s_k)
     k <- k + 1
   }
-  sol <- list(par = x_k , func = f(x_k) , grad = g_k , iter = k)
+  sol <- list(par = x_k , func = f(x_k) , grad = g_k , iter = k , hess = H_k)
   return(sol)
 }
 
@@ -82,7 +73,7 @@ BFGS_620 <- function(f, g, x_k, alpha, c, rho, tol, k_max){
     H_k <- (I_n - rho_k*s_k%*%t(y_k))%*%H_k%*%(I_n - rho_k*y_k%*%t(s_k)) + rho_k*s_k%*%t(s_k)
     k <- k + 1
   }
-sol <- list(par = x_k , func = f(x_k) , grad = g_k , iter = k)
+sol <- list(par = x_k , func = f(x_k) , grad = g_k , iter = k , hess = H_k)
   return(sol)
 }
 
@@ -102,7 +93,7 @@ DFP <- function(f, g, x_k, alpha, c, rho, tol, k_max){
     H_k <- H_k - (H_k%*%y_k%*%t(y_k)%*%H_k)/(t(y_k)%*%H_k%*%y_k)[1] + (s_k%*%t(s_k))/(t(y_k)%*%s_k)[1]
     k <- k + 1
   }
-  sol <- list(par = x_k , func = f(x_k) , grad = g_k , iter = k)
+  sol <- list(par = x_k , func = f(x_k) , grad = g_k , iter = k , hess = H_k)
   return(sol)
 }
 
@@ -118,8 +109,9 @@ $$\nabla f(x_1,x_2) = \begin{pmatrix}100x_1 \\ x_2\end{pmatrix}.$$
 
 f = function(x) 100*(x[2] - x[1]^2)^2 + (1 - x[1])^2
 g = function(x) c(2*(x[1] - 1) - 400*x[1]*(x[2] - x[1]^2), 200*(x[2] - x[1]^2))
+Hess = function(x) rbind(c(1200*x[1]^2 - 400*x[2] + 2, -400*x[1]), c(-400*x[1], 200))
 
-x_k <- c(5,1) # Valgt startværdi
+x_k <- c(1,2) # Valgt startværdi
 alpha <- 1    
 c <- 1e-4
 tol <- 1e-4
@@ -127,15 +119,36 @@ rho <- 0.5
 k_max <- 10000
 
 
-DFP(f, g, x_k, alpha, c, rho, tol, k_max)$par
-BFGS(f, g, x_k, alpha, c, rho, tol, k_max)$par
+DFP     (f, g, x_k, alpha, c, rho, tol, k_max)$par
+BFGS    (f, g, x_k, alpha, c, rho, tol, k_max)$par
 BFGS_620(f, g, x_k, alpha, c, rho, tol, k_max)$par
-optim(x_k, f, g, method = "BFGS")$par
+optim   (x_k, f, g, method = "BFGS")$par
 
-DFP(f, g, x_k, alpha, c, rho, tol, k_max)$iter
-BFGS(f, g, x_k, alpha, c, rho, tol, k_max)$iter
+DFP     (f, g, x_k, alpha, c, rho, tol, k_max)$iter
+BFGS    (f, g, x_k, alpha, c, rho, tol, k_max)$iter
 BFGS_620(f, g, x_k, alpha, c, rho, tol, k_max)$iter
-optim(x_k, f, g, method = "BFGS")$counts
+optim   (x_k, f, g, method = "BFGS")$counts
+
+HDFP      <- DFP     (f, g, x_k, alpha, c, rho, tol, k_max)$hess
+HBFGS     <- BFGS    (f, g, x_k, alpha, c, rho, tol, k_max)$hess
+HBFGS_620 <- BFGS_620(f, g, x_k, alpha, c, rho, tol, k_max)$hess
+H <- solve(Hess(c(1,1)))
+
+
+BDFP      <- solve(DFP     (f, g, x_k, alpha, c, rho, tol, k_max)$hess)
+BBFGS     <- solve(BFGS    (f, g, x_k, alpha, c, rho, tol, k_max)$hess)
+BBFGS_620 <- solve(BFGS_620(f, g, x_k, alpha, c, rho, tol, k_max)$hess)
+B <- Hess(c(1,1))
+
+H
+abs(HDFP  -     H)
+abs(HBFGS -     H)
+abs(HBFGS_620 - H)
+
+B
+abs(BDFP  -     B)
+abs(BBFGS -     B)
+abs(BBFGS_620 - B)
 ```
 ***
 Compare those with the gradient descent, Nelder-Mead (possibly by `optim(..., method = "Nelder-Mead")`) and `R`'s own BFGS implementation (`optim(..., method = "BFGS")`) on the problems given above: What are the differences? What is the performance difference (number of iterations, execution time e.g. `system.time`)? What impact does the choice of initial matrix (and possibly using (6.20)) have on the quasi-Newton methods?
@@ -183,13 +196,13 @@ steepest_descent <- function(f, g, x_k, alpha, c, rho, tol, k_max) {
 }
 
 microbenchmark(
-optim(x_k, f, g, method = "BFGS") ,
-optim(x_k, f,    method = "Nelder-Mead") ,
-DFP(f, g, x_k, alpha, c, rho, tol, k_max) ,
-steepest_descent(f, g, x_k, alpha, c, rho, tol, k_max) ,
+optim(x_k, f,    method = "Nelder-Mead") , 
+optim(x_k, f, g, method = "BFGS") , 
 BFGS(f, g, x_k, alpha, c, rho, tol, k_max) , 
-BFGS_620(f, g, x_k, alpha, c, rho, tol, k_max) ,
-unit = "ms"
+BFGS_620(f, g, x_k, alpha, c, rho, tol, k_max) ,  
+DFP(f, g, x_k, alpha, c, rho, tol, k_max) ,
+steepest_descent(f, g, x_k, alpha, c, rho, tol, k_max) ,  
+times = 10
 )
 ```
 
