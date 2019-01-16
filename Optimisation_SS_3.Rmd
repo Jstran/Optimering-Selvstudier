@@ -44,11 +44,11 @@ Betragter forskellige _Quasi-Newton metoder_.
 
 **DFP** opdateringsformel\
 \[
-  B_{k+1} = (I -\rho_k y_k s_k^\top) B_k (I -\rho_k s_k y_k^\top) + \rho_k y_k y_k^\top.\tag{DEP}
+  B_{k+1} = (I -\rho_k y_k s_k^\top) B_k (I -\rho_k s_k y_k^\top) + \rho_k y_k y_k^\top.\tag{DFP}
 \]
 Inverteret formel\
 \[
-     H_{k+1} = H_k - \frac{H_k y_k y_k^\top H_k}{y_k^\top H_k y_k} + \frac{s_k s_k^\top}{y_k^\top}. \tag{DEP}
+     H_{k+1} = H_k - \frac{H_k y_k y_k^\top H_k}{y_k^\top H_k y_k} + \frac{s_k s_k^\top}{y_k^\top}. \tag{DFP}
 \]
 
 **BFGS Metoden** opdaterings formel\
