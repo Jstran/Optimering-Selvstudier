@@ -16,6 +16,52 @@ library(microbenchmark)
 Implement BFGS, DFP and SR1 (as line search).
 
 ***
+_Line Search iteration_\
+\[
+x_{k+1}=x_k+\alpha_kp_k,
+\]
+hvor $\alpha_k$ er skridtlængden som skal opfylde _Wolfe conditions_, og søgningsretningen $p_k$ er givet ved\
+\[
+    p_k=-B_k^{-1}\nabla f(x_k).
+\]
+
+_Sekantligning_\
+\[
+    B_{k+1}s_k=y_k,
+\]
+hvor 
+\[
+    s_k = x_{k+1} - x_k = \alpha_k p_k, 
+    y_k = \nabla f_{k+1} - \nabla f_k.
+\]
+
+_Curvature betingelsen_\
+\[
+    s_k^\top y_k > 0.
+\]
+
+Betragter forskellige _Quasi-Newton metoder_.
+
+**DFP** opdateringsformel\
+\[
+  B_{k+1} = (I -\rho_k y_k s_k^\top) B_k (I -\rho_k s_k y_k^\top) + \rho_k y_k y_k^\top.\tag{DEP}
+\]
+Inverteret formel\
+\[
+     H_{k+1} = H_k - \frac{H_k y_k y_k^\top H_k}{y_k^\top H_k y_k} + \frac{s_k s_k^\top}{y_k^\top}. \tag{DEP}
+\]
+
+**BFGS Metoden** opdaterings formel\
+\[
+    H_{k+1} = (I -\rho_k y_k s_k^\top) H_k (I -\rho_k s_k y_k^\top) + \rho_k y_k y_k^\top.\tag{BFGS}
+\]
+ 
+**SR1** opdateringsformel\
+\[
+    H_{k+1} = H_k + \frac{(s_k - H_ky_k) (s_k-H_ky_k)^\top}{(s_k - H_ky_k)^\top y_k}\tag{SR1}
+\]
+
+
 ```{r}
 # Implementation af backtracking
 backtracking_line_search <- function(alpha, c, rho, x_k, p_k, g_k, f) {
