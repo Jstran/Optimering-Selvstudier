@@ -60,8 +60,8 @@ BFGS <- function(f, g, x_k, alpha, c, rho, tol, k_max){
     H_k <- (I_n - rho_k * (s_k %*% t(y_k))[1]) %*% H_k %*% (I_n - rho_k * (s_k %*% t(y_k))[1]) + rho_k * (s_k %*% t(s_k))[1]
     k <- k + 1
   }
-printfln("k = %d \t x_k = (%6.3f , %6.3f) \t f_k = %.2f \t g_k = (%8.3f , %8.3f) \t alpha_k = %.5f", k, x_k[1] , x_k[2], f(x_k), g_k[1] , g_k[2], alpha_k)
-  return(x_k)
+  sol <- list(par = x_k , func = f(x_k) , grad = g_k , iter = k)
+  return(sol)
 }
 
 
@@ -88,8 +88,8 @@ BFGS_620 <- function(f, g, x_k, alpha, c, rho, tol, k_max){
     H_k <- (I_n - rho_k * (s_k %*% t(y_k))[1]) %*% H_k %*% (I_n - rho_k * (s_k %*% t(y_k))[1]) + rho_k * (s_k %*% t(s_k))[1]
     k <- k + 1
   }
-printfln("k = %d \t x_k = (%6.3f , %6.3f) \t f_k = %.2f \t g_k = (%8.3f , %8.3f) \t alpha_k = %.5f", k, x_k[1] , x_k[2], f(x_k), g_k[1] , g_k[2], alpha_k)
-  return(x_k)
+sol <- list(par = x_k , func = f(x_k) , grad = g_k , iter = k)
+  return(sol)
 }
 
 
@@ -109,8 +109,8 @@ DFP <- function(f, g, x_k, alpha, c, rho, tol, k_max){
     H_k <- H_k - (H_k %*% y_k %*% t(y_k) %*% H_k) / (t(y_k) %*% H_k %*% y_k)[1] + (s_k %*% t(s_k)) / (t(y_k) %*% s_k)[1]
     k <- k + 1
   }
-printfln("k = %d \t x_k = (%6.3f , %6.3f) \t f_k = %.2f \t g_k = (%8.3f , %8.3f) \t alpha_k = %.5f", k, x_k[1] , x_k[2], f(x_k), g_k[1] , g_k[2], alpha_k)
-  return(x_k)
+  sol <- list(par = x_k , func = f(x_k) , grad = g_k , iter = k)
+  return(sol)
 }
 
 ```
@@ -126,15 +126,17 @@ rho <- 0.5
 k_max <- 10000
 
 
-DFP(f, g, x_k, alpha, c, rho, tol, k_max)
-BFGS(f, g, x_k, alpha, c, rho, tol, k_max)
-BFGS_620(f, g, x_k, alpha, c, rho, tol, k_max)
-optim(x_k, f, g, method = "BFGS")
+DFP(f, g, x_k, alpha, c, rho, tol, k_max)$iter
+BFGS(f, g, x_k, alpha, c, rho, tol, k_max)$iter
+BFGS_620(f, g, x_k, alpha, c, rho, tol, k_max)$iter
+optim(x_k, f, g, method = "BFGS")$counts
 ```
+***
 Compare those with the gradient descent, Nelder-Mead (possibly by `optim(..., method = "Nelder-Mead")`) and `R`'s own BFGS implementation (`optim(..., method = "BFGS")`) on the problems given above: What are the differences? What is the performance difference (number of iterations, execution time e.g. `system.time`)? What impact does the choice of initial matrix (and possibly using (6.20)) have on the quasi-Newton methods?
 
 Remember the DRY principle (don't repeat yourself). Here is a example of how to plot several lines in a figure:
 
+***
 ```{r}
 res_bfgs <- cumprod(runif(10))
 res_dfp <- cumprod(runif(10))
@@ -159,7 +161,30 @@ legend("topright", legend = nms, col = clrs, lty = 1)
 ```
 
 ```{r}
+steepest_descent <- function(f, g, x_k, alpha, c, rho, tol, k_max) {
+  k <- 0
+	g_k <- tol + 1 # For at komme i gang
+	
+	while ((norm(g_k,type="2") > tol) & (k < k_max)) { # Type 2 er for vektorer
+		g_k <- g(x_k)
+		p_k <- -g_k 
+		alpha_k <- backtracking_line_search(alpha , c, rho, x_k, p_k, g_k, f)
+		x_k <- x_k + alpha_k * p_k
+		k <- k + 1
+	}
+	sol <- list(par = x_k , func = f(x_k) , grad = g_k , iter = k)
+	return(sol)
+}
 
+microbenchmark(
+optim(x_k, f, g, method = "BFGS") ,
+optim(x_k, f,    method = "Nelder-Mead") ,
+DFP(f, g, x_k, alpha, c, rho, tol, k_max) ,
+steepest_descent(f, g, x_k, alpha, c, rho, tol, k_max) ,
+BFGS(f, g, x_k, alpha, c, rho, tol, k_max) , 
+BFGS_620(f, g, x_k, alpha, c, rho, tol, k_max) ,
+unit = "ms"
+)
 ```
 
 # Exercise 2: Inverse Hessian approximations
