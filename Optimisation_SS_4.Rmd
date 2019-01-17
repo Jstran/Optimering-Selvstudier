@@ -53,11 +53,15 @@ Gradienten og Hessematricen for $f$ kan udtrykkes som
 \nabla ^ { 2 } f ( x ) &= \sum _ { j = 1 } ^ { m } \nabla r _ { j } ( x ) \nabla r _ { j } ( x ) ^ T + \sum _ { j = 1 } ^ { m } r _ { j } ( x ) \nabla ^ { 2 } r _ { j } ( x )\\
 &= J ( x ) ^ T J ( x ) + \sum _ { j = 1 } ^ { m } r _ { j } ( x ) \nabla ^ { 2 } r _ { j } ( x )
 \end{align*}
+***
+
 # Exercise 1: OLS
 
 Explain and show different ways to solve an OLS problem (e.g. `cars` dataset) using matrix factorisations. 
 
 Hvad er et OLS problem?
+
+***
 
 I tilfældet af at $\phi(\boldsymbol x;\boldsymbol t)$ er en lineær funktion af $\boldsymbol x$, vil det medføre at residualerne $ r_j(\boldsymbol x)$ også er lineære. Så kaldes det problem man gerne vil løse et 'Linear least square problem'. Så kan residualerne opstilles $\boldsymbol r(\boldsymbol x) = J\boldsymbol x - \boldsymbol y$ og objektfunktionen \eqref{numeriskresid} kan skrives
 \begin{align}
@@ -116,6 +120,7 @@ x_lm <- coefficients(lm_cars)
 
 x_lm
 ```
+***
 
 # Exercise 2: NLS
 
@@ -127,6 +132,12 @@ Discuss which of Gauss-Newton (`nls()`) and Levenberg-Marquardt (`minpack.lm` li
 
 Can you solve this optimisation problem in other ways than by Gauss-Newton/Levenberg-Marquardt?
 
+***
+
+***
+
 # Exercise 3: Be creative!
 
 If you have anything, put it here.
+
+***
