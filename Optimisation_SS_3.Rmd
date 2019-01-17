@@ -214,7 +214,7 @@ BFGS(f, g, x_k, alpha, c, rho, tol, k_max) ,
 BFGS_620(f, g, x_k, alpha, c, rho, tol, k_max) ,  
 DFP(f, g, x_k, alpha, c, rho, tol, k_max) ,
 steepest_descent(f, g, x_k, alpha, c, rho, tol, k_max) ,  
-times = 10
+times = 100
 )
 ```
 ***
@@ -356,6 +356,6 @@ BFGS_fejl    (f, g, x_k, alpha, c, rho, tol, k_max),
 DFP          (f, g, x_k, alpha, c, rho, tol, k_max),
 DFP_fejl     (f, g, x_k, alpha, c, rho, tol, k_max),
 Newton       (f, g, x_k, alpha, c, rho, tol, k_max),
-times = 10
+times = 100
 )
 ```
