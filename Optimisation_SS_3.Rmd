@@ -61,7 +61,7 @@ Inverteret formel\
     H_{k+1} = H_k + \frac{(s_k - H_ky_k) (s_k-H_ky_k)^\top}{(s_k - H_ky_k)^\top y_k}\tag{SR1}
 \]
 
-
+BFGS og DFP implementeres.
 ```{r}
 # Implementation af backtracking
 backtracking_line_search <- function(alpha, c, rho, x_k, p_k, g_k, f) {
@@ -92,7 +92,7 @@ BFGS <- function(f, g, x_k, alpha, c, rho, tol, k_max){
     H_k <- (I_n - rho_k*s_k%*%t(y_k))%*%H_k%*%(I_n - rho_k*y_k%*%t(s_k)) + rho_k*s_k%*%t(s_k)
     k <- k + 1
   }
-  sol <- list(par = x_k , func = f(x_k) , grad = g_k , iter = k , hess = H_k)
+  sol <- list(par = x_k , func = f(x_k) , grad = g_k , iter = k , inv_hess = H_k)
   return(sol)
 }
 
@@ -119,7 +119,7 @@ BFGS_620 <- function(f, g, x_k, alpha, c, rho, tol, k_max){
     H_k <- (I_n - rho_k*s_k%*%t(y_k))%*%H_k%*%(I_n - rho_k*y_k%*%t(s_k)) + rho_k*s_k%*%t(s_k)
     k <- k + 1
   }
-sol <- list(par = x_k , func = f(x_k) , grad = g_k , iter = k , hess = H_k)
+sol <- list(par = x_k , func = f(x_k) , grad = g_k , iter = k , inv_hess = H_k)
   return(sol)
 }
 
@@ -139,42 +139,12 @@ DFP <- function(f, g, x_k, alpha, c, rho, tol, k_max){
     H_k <- H_k - (H_k%*%y_k%*%t(y_k)%*%H_k)/(t(y_k)%*%H_k%*%y_k)[1] + (s_k%*%t(s_k))/(t(y_k)%*%s_k)[1]
     k <- k + 1
   }
-  sol <- list(par = x_k , func = f(x_k) , grad = g_k , iter = k , hess = H_k)
+  sol <- list(par = x_k , func = f(x_k) , grad = g_k , iter = k , inv_hess = H_k)
   return(sol)
 }
 
 ```
 
-
-Undersøger antal iteration for de forskellige metoder. Der benyttes funktionen
-$$f(x_1,x_2) = \frac{1}{2}(100x_1^2+x_2^2),$$ hvor funktionens gradient er udregnet i hånden til at være
-$$\nabla f(x_1,x_2) = \begin{pmatrix}100x_1 \\ x_2\end{pmatrix}.$$
-```{r}
-# f = function(x) 0.5*(100*x[1]^2 + x[2]^2)
-# g = function(x) c(100*x[1], x[2])
-
-f = function(x) 100*(x[2] - x[1]^2)^2 + (1 - x[1])^2
-g = function(x) c(2*(x[1] - 1) - 400*x[1]*(x[2] - x[1]^2), 200*(x[2] - x[1]^2))
-
-x_k <- c(1,2) # Valgt startværdi
-alpha <- 1    
-c <- 1e-4
-tol <- 1e-4
-rho <- 0.5
-k_max <- 10000
-
-
-DFP     (f, g, x_k, alpha, c, rho, tol, k_max)$par
-BFGS    (f, g, x_k, alpha, c, rho, tol, k_max)$par
-BFGS_620(f, g, x_k, alpha, c, rho, tol, k_max)$par
-optim   (x_k, f, g, method = "BFGS")$par
-
-DFP     (f, g, x_k, alpha, c, rho, tol, k_max)$iter
-BFGS    (f, g, x_k, alpha, c, rho, tol, k_max)$iter
-BFGS_620(f, g, x_k, alpha, c, rho, tol, k_max)$iter
-optim   (x_k, f, g, method = "BFGS")$counts
-
-```
 ***
 Compare those with the gradient descent, Nelder-Mead (possibly by `optim(..., method = "Nelder-Mead")`) and `R`'s own BFGS implementation (`optim(..., method = "BFGS")`) on the problems given above: What are the differences? What is the performance difference (number of iterations, execution time e.g. `system.time`)? What impact does the choice of initial matrix (and possibly using (6.20)) have on the quasi-Newton methods?
 
@@ -182,7 +152,47 @@ Remember the DRY principle (don't repeat yourself). Here is a example of how to 
 
 ***
 
+Undersøger antal iterationer for de forskellige metoder. Der benyttes Rosenbrock funktionen
+$$f(x_1,x_2) = 100(x_2 - x_1^2)^2 + (1 - x_1)^2 ,$$ hvor funktionens gradient er udregnet i hånden til at være
+$$\nabla f(x_1,x_2) = \begin{pmatrix}2 (x_2 - 1) - 400 x_1 (x_2 -x_1^2) \\ 200 (x_2 -x_1^2) \end{pmatrix}.$$
 ```{r}
+# Definerer funktion
+f = function(x) 100*(x[2] - x[1]^2)^2 + (1 - x[1])^2
+g = function(x) c(2*(x[1] - 1) - 400*x[1]*(x[2] - x[1]^2), 200*(x[2] - x[1]^2))
+
+
+# Vælger værdier
+x_k <- c(1,2) # Valgt startværdi
+alpha <- 1    
+c <- 1e-4
+tol <- 1e-4
+rho <- 0.5
+k_max <- 10000
+```
+
+
+Anvender metoderne på Rosenbrock funktionen som har minimum i $(1,1)$
+```{r}
+DFP     (f, g, x_k, alpha, c, rho, tol, k_max)$par
+BFGS    (f, g, x_k, alpha, c, rho, tol, k_max)$par
+BFGS_620(f, g, x_k, alpha, c, rho, tol, k_max)$par
+optim   (x_k, f, g, method = "BFGS")$par
+optim   (x_k, f, g, method = "Nelder-Mead")$par
+```
+
+Sammenligner antal iterationer de forskellige metoder bruger.
+```{r}
+DFP     (f, g, x_k, alpha, c, rho, tol, k_max)$iter
+BFGS    (f, g, x_k, alpha, c, rho, tol, k_max)$iter
+BFGS_620(f, g, x_k, alpha, c, rho, tol, k_max)$iter
+optim   (x_k, f, g, method = "BFGS")$counts
+optim   (x_k, f, g, method = "Nelder-Mead")$counts
+
+```
+
+Sammenligner tidsforbruget for de enkelte metoder.
+```{r}
+# Implementerer Steepest descent
 steepest_descent <- function(f, g, x_k, alpha, c, rho, tol, k_max) {
   k <- 0
 	g_k <- tol + 1 # For at komme i gang
@@ -198,6 +208,7 @@ steepest_descent <- function(f, g, x_k, alpha, c, rho, tol, k_max) {
 	return(sol)
 }
 
+# Bruger funktionen microbenchmark til at sammenligne tidsforbeuget. 
 microbenchmark(
 optim(x_k, f,    method = "Nelder-Mead") , 
 optim(x_k, f, g, method = "BFGS") , 
@@ -214,39 +225,139 @@ times = 10
 Investigate (plot, print, ...) the approximations of the Hessian ($B_{k}^{BFGS}$, $B_{k}^{DFP}$, and $B_{SR1}$) and inverse Hessian ($H_{k}^{BFGS}$, $H_{k}^{DFP}$, and $H_{SR1}$) in the optimisation problems given above. Compare to the the exact Hessian (and inverse) and maybe also to approximations by finite differences and/or automatic differentiation (possibly by libraries `numDeriv`/`madness`). (How can you summarise the difference on matrices?)
 
 ***
+
+
 ```{r}
+# Hessematricen for Rosenbrock funktionen udregnet i hånden.
 Hess = function(x) rbind(c(1200*x[1]^2 - 400*x[2] + 2, -400*x[1]), c(-400*x[1], 200))
 
-HDFP      <- DFP     (f, g, x_k, alpha, c, rho, tol, k_max)$hess
-HBFGS     <- BFGS    (f, g, x_k, alpha, c, rho, tol, k_max)$hess
-HBFGS_620 <- BFGS_620(f, g, x_k, alpha, c, rho, tol, k_max)$hess
+
+# Definerer de inverterede hessematricer for den sidste iteration for de forskellige metoder, samt den inverse af den eksakte hessematrice.
+HDFP      <- DFP     (f, g, x_k, alpha, c, rho, tol, k_max)$inv_hess
+HBFGS     <- BFGS    (f, g, x_k, alpha, c, rho, tol, k_max)$inv_hess
+HBFGS_620 <- BFGS_620(f, g, x_k, alpha, c, rho, tol, k_max)$inv_hess
 H <- solve(Hess(c(1,1)))
 
-
-BDFP      <- solve(DFP     (f, g, x_k, alpha, c, rho, tol, k_max)$hess)
-BBFGS     <- solve(BFGS    (f, g, x_k, alpha, c, rho, tol, k_max)$hess)
-BBFGS_620 <- solve(BFGS_620(f, g, x_k, alpha, c, rho, tol, k_max)$hess)
+# Definerer hessematricerne for den sidste iteration for de forskellige metoder, samt den eksakte hessematrice.
+BDFP      <- solve(DFP     (f, g, x_k, alpha, c, rho, tol, k_max)$inv_hess)
+BBFGS     <- solve(BFGS    (f, g, x_k, alpha, c, rho, tol, k_max)$inv_hess)
+BBFGS_620 <- solve(BFGS_620(f, g, x_k, alpha, c, rho, tol, k_max)$inv_hess)
 B <- Hess(c(1,1))
 
+# Afstanden indgang for indgang mellem de inverterede hessematricer fra metoderne og den eksakte inverterede hessematrice.
 H
 abs(HDFP  -     H)
 abs(HBFGS -     H)
 abs(HBFGS_620 - H)
 
+# Afstanden indgang for indgang mellem hessematricerne fra metoderne og den eksakte hessematrice.
 B
 abs(BDFP  -     B)
 abs(BBFGS -     B)
 abs(BBFGS_620 - B)
 ```
 
-
+***
 # Exercise 3: Self-correcting properties
 
 What happens if you introduce error in the $H_k$'s in the implementations of BFGS, DFP, and SR1? Will the method self-correct? (Discuss how to introduce error.)
 
 Compare to methods without this error and the true inverse Hessian.
 
+***
+Der implementeres BFGS og DFP med fejl.Dette gøres, ved at den approksimerede hessematrice sættes lig en tilfældig matrice i én itteration.
+```{r}
+# Implementation af BFGS med fejl
+BFGS_fejl <- function(f, g, x_k, alpha, c, rho, tol, k_max){
+  k <- 0
+  n <- length(x_k)
+  H_k <- I_n <- diag(n)
+  g_k <- tol + 1
+  while (norm(g_k, type="2") > tol & k < k_max) {
+    g_k <- g(x_k)
+    p_k <- -  H_k %*% g_k
+    alpha_k <- backtracking_line_search(alpha, c, rho, x_k, p_k, g_k, f)
+    x_k <- x_k + alpha_k * p_k
+    s_k <- alpha_k * p_k
+    y_k <- g(x_k) - g_k
+    rho_k <- 1 / (t(y_k) %*% s_k)[1]
+    if(k == 3){
+      H_k <- matrix(c(-800, -8, 90, -11), nrow = 2)}
+    else {
+      H_k <- (I_n - rho_k*s_k%*%t(y_k))%*%H_k%*%(I_n - rho_k*y_k%*%t(s_k)) + rho_k*s_k%*%t(s_k)}
+  
+    k <- k + 1
+  }
+  sol <- list(par = x_k , func = f(x_k) , grad = g_k , iter = k , inv_hess = H_k)
+  return(sol)
+}
 
-# Exercise 4: Be creative!
+# Implementation af DFP med fejl
+DFP_fejl <- function(f, g, x_k, alpha, c, rho, tol, k_max){
+  k <- 0
+  n <- length(x_k)
+  H_k <- I_n <- diag(n)
+  g_k <- tol + 1
+  while (norm(g_k, type="2") > tol & k < k_max) {
+    g_k <- g(x_k)
+    p_k <- -  H_k %*% g_k
+    alpha_k <- backtracking_line_search(alpha, c, rho, x_k, p_k, g_k, f)
+   x_k <- x_k + alpha_k * p_k
+    s_k <- alpha_k * p_k
+    y_k <- g(x_k) - g_k
+    if(k == 20){
+      H_k <- matrix(c(800, -10, 0, 11), nrow = 2)}
+    else {
+    H_k <- H_k - (H_k%*%y_k%*%t(y_k)%*%H_k)/(t(y_k)%*%H_k%*%y_k)[1] + (s_k%*%t(s_k))/(t(y_k)%*%s_k)[1]}
+    k <- k + 1
+  }
+  sol <- list(par = x_k , func = f(x_k) , grad = g_k , iter = k , inv_hess = H_k)
+  return(sol)
+}
 
-If you have anything, put it here.
+# Implementation af Newton
+Newton <- function(f, g, x_k, alpha, c, rho, tol, k_max) {
+  k <- 0
+	g_k <- tol + 1 # For at komme i gang
+	while ((norm(g_k,type="2") > tol) & (k < k_max)) { # Type 2 er for vektorer
+		g_k <- g(x_k)
+		p_k <- -solve(Hess(x_k)) %*% g_k # Bruger den eksakte Hessian
+		alpha_k <- backtracking_line_search(alpha , c, rho, x_k, p_k, g_k, f)
+		x_k <- x_k + alpha_k * p_k
+		k <- k + 1
+	} 
+	sol <- list(par = x_k , func = f(x_k) , grad = g_k , iter = k, inv_hess = solve(Hess(x_k)))
+	return(sol)
+}
+
+```
+
+Metoderne med fejl sammenlignes med metoderne uden fejl, samt med Newton-metoden hvor den eksakte hessematrice indgår.
+
+```{r}
+# Vælger værdier
+x_k <- c(0,0)
+alpha <- 1    
+c <- 1e-4
+tol <- 1e-4
+rho <- 0.5
+k_max <- 10000
+
+# Sammenligner metoderne med fejl med metoderne uden fejl, samt med Newton.
+BFGS_fejl    (f, g, x_k, alpha, c, rho, tol, k_max)
+BFGS(f, g, x_k, alpha, c, rho, tol, k_max)
+DFP_fejl(f, g, x_k, alpha, c, rho, tol, k_max)
+DFP(f, g, x_k, alpha, c, rho, tol, k_max)
+Newton(f, g, x_k, alpha, c, rho, tol, k_max)
+
+
+# Bruger funktionen microbenchmark til at sammenligne tidsforbeuget. 
+microbenchmark(
+BFGS_fejl    (f, g, x_k, alpha, c, rho, tol, k_max),
+BFGS         (f, g, x_k, alpha, c, rho, tol, k_max),
+DFP_fejl     (f, g, x_k, alpha, c, rho, tol, k_max),
+DFP          (f, g, x_k, alpha, c, rho, tol, k_max),
+Newton       (f, g, x_k, alpha, c, rho, tol, k_max),
+times = 10
+)
+```
