@@ -29,15 +29,15 @@ Objektfunktion skrevet på vektorform er
   f(\boldsymbol x) = \frac{1}{2}||\boldsymbol{r}(\boldsymbol x)||^2,
   \label{numeriskresid}
 \end{align}
-hvor $\boldsymbol{r}(\boldsymbol x) = (r_1(\boldsymbol x),\ldots,r_m(\boldsymbol x))^T$.
+hvor $\boldsymbol{r}(\boldsymbol x) = (r_1(\boldsymbol x),\ldots,r_m(\boldsymbol x))^\top$.
 
 \begin{align*}
 J(\boldsymbol x) = 
 \begin{bmatrix} 
-  \nabla r_1(\boldsymbol x)^T\\
-  \nabla r_2(\boldsymbol x)^T\\
+  \nabla r_1(\boldsymbol x)^\top\\
+  \nabla r_2(\boldsymbol x)^\top\\
   \vdots\\
-  \nabla r_m(\boldsymbol x)^T
+  \nabla r_m(\boldsymbol x)^\top
 \end{bmatrix}
 =
 \begin{bmatrix}
@@ -49,9 +49,9 @@ J(\boldsymbol x) =
 \end{align*}
 Gradienten og Hessematricen for $f$ kan udtrykkes som
 \begin{align*}
-\nabla f ( x ) &= \sum _ { j = 1 } ^ { m } r _ { j } ( x ) \nabla r _ { j } ( x ) = J ( x ) ^ T r ( x )\\
-\nabla ^ { 2 } f ( x ) &= \sum _ { j = 1 } ^ { m } \nabla r _ { j } ( x ) \nabla r _ { j } ( x ) ^ T + \sum _ { j = 1 } ^ { m } r _ { j } ( x ) \nabla ^ { 2 } r _ { j } ( x )\\
-&= J ( x ) ^ T J ( x ) + \sum _ { j = 1 } ^ { m } r _ { j } ( x ) \nabla ^ { 2 } r _ { j } ( x )
+\nabla f(x) &= \sum_{j = 1}^{m}r_{j}(x)\nabla r_{j}(x)=J(x)^\top r(x)\\
+\nabla ^ { 2 } f ( x ) &= \sum _ { j = 1 } ^ { m } \nabla r _ { j } ( x ) \nabla r _ { j } ( x ) ^ \top + \sum _ { j = 1 } ^ { m } r _ { j } ( x ) \nabla ^ { 2 } r _ { j } ( x )\\
+&= J ( x )^\top J ( x ) + \sum _ { j = 1 } ^ { m } r _ { j } ( x ) \nabla ^ { 2 } r _ { j } ( x )
 \end{align*}
 ***
 
@@ -63,26 +63,26 @@ Hvad er et OLS problem?
 
 ***
 
-I tilfældet af at $\phi(\boldsymbol x;\boldsymbol t)$ er en lineær funktion af $\boldsymbol x$, vil det medføre at residualerne $ r_j(\boldsymbol x)$ også er lineære. Så kaldes det problem man gerne vil løse et 'Linear least square problem'. Så kan residualerne opstilles $\boldsymbol r(\boldsymbol x) = J\boldsymbol x - \boldsymbol y$ og objektfunktionen \eqref{numeriskresid} kan skrives
+I tilfældet af at $\phi(\boldsymbol x;\boldsymbol t)$ er en lineær funktion af $\boldsymbol x$, vil det medføre at residualerne $r_j(\boldsymbol x)$ også er lineære. Så kaldes det problem man gerne vil løse et 'Linear least square problem'. Så kan residualerne opstilles $\boldsymbol r(\boldsymbol x) = J\boldsymbol x - \boldsymbol y$ og objektfunktionen \eqref{numeriskresid} kan skrives
 \begin{align}
   f(\boldsymbol x) = \frac{1}{2}||J\boldsymbol x - \boldsymbol y|| \tag{10.13}.
 \end{align}
 Gradienten og Hessematricen er nu på formen
 \begin{align*}
-  \nabla f(\boldsymbol x) &= J^T(J\boldsymbol x - \boldsymbol y)\\
-  \nabla^2 f(\boldsymbol x) &= J^TJ.
+  \nabla f(\boldsymbol x) &= J^\top (J\boldsymbol x - \boldsymbol y)\\
+  \nabla^2 f(\boldsymbol x) &= J^\top J.
 \end{align*}
-DET ER LET AT SE AT $f(\boldsymbol x)$ I (10.13) ER KONVEKS.Jf. Sætning 2.5 siger så at ethvert punkt $\boldsymbol{x}^*$ der opfylder $\nabla f(\boldsymbol{x}^*)=0$ er en 'global minimiser' af $f$. Derfor må $\boldsymbol{x}^*$ opfylde
+Da hessematricen, $\nabla^2 f(\boldsymbol x) &= J^\top J$, er positiv semidefinit, er $f$ konveks. Jf. Sætning 2.5 gælder der så at ethvert punkt $\boldsymbol{x}^*$ der opfylder $\nabla f(\boldsymbol{x}^*)=0$ er en 'global minimiser' af $f$. Derfor må $\boldsymbol{x}^*$ opfylde
 \begin{align} 
-  0 = \nabla f(\boldsymbol{x}^*) &= J^T(J\boldsymbol{x}^* - \boldsymbol y)\nonumber\\
+  0 = \nabla f(\boldsymbol{x}^*) &= J^\top (J\boldsymbol{x}^* - \boldsymbol y)\nonumber\\
   &\Updownarrow\nonumber\\
-  J^TJ\boldsymbol{x}^*&=J^T\boldsymbol y. \tag{10.14}
+  J^\top J\boldsymbol{x}^*&=J^\top \boldsymbol y. \tag{10.14}
 \end{align}
 Ligning (10.14) er 'normalligningerne'.
 
 
 
-Vil finde en model på formen "dist = b_0 + b_1 * speed". Det vil sige vores designmatrix er som følgende
+Vil finde en model på formen "$\text{dist} = b_0 + b_1 * \text{speed}$". Det vil sige vores designmatrix er som følgende
 ```{r}
 designmatrix <- matrix(1, nrow = length(cars$speed), ncol = 2)
 designmatrix[,2] <- cars$speed
@@ -91,12 +91,12 @@ Vil bestemme J (jacobi-matricen), den er givet ved
 ```{r}
 J <- designmatrix
 ```
-Skal nu finde de $x$-værdier (normalt vores betaer) som gør at residualerne er mindst. Et minimum for x'erne skal jf. (10.14) opfylde $J^TJ=J^T\cdot dist$. For at løse dette bruges Cholesky, hvor $A=J^TJ$ og $b=J^T\cdot dist$, da fås at $Ax=b$:
+Skal nu finde de $x$-værdier (normalt vores betaer) som gør at residualerne er mindst. Et minimum for x'erne skal jf. (10.14) opfylde $J^\top J=J^\top\cdot dist$. For at løse dette bruges Cholesky, hvor $A=J^\top J$ og $b=J^\top \cdot dist$, da fås at $Ax=b$:
 ```{r}
 A <- t(J) %*% J
 b <- t(J) %*% cars$dist
 ```
-Der skal nu løses $Ax=b$. Dette gøres ved brug af Cholesky. Først findes $L$ sådan at $A=LL^T$. (Bemærk: $chol(A) = L^T$)
+Der skal nu løses $Ax=b$. Dette gøres ved brug af Cholesky. Først findes $L$ sådan at $A=LL^\top $. (Bemærk: $chol(A) = L^\top $)
 ```{r}
 L <- t(chol(A))
 ```
@@ -104,7 +104,7 @@ Finder $z$ udfra $Lz=b$. Da $L$ er en nedre trekantsmatrix, vil der ved brug af 
 ```{r}
 z <- forwardsolve(L,b)
 ```
-Finder nu $x$ udfra $L^Tx=z$. Da $L^T$ er en nedre trekantsmatrix, vil der ved brug af backwardsolving skulle løses $n$ lineære ligninger med én ubekendt.
+Finder nu $x$ udfra $L^\top x=z$. Da $L^\top $ er en nedre trekantsmatrix, vil der ved brug af backwardsolving skulle løses $n$ lineære ligninger med én ubekendt.
 ```{r}
 x_star <- backsolve(t(L), z)
 ```
