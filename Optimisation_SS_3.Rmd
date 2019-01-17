@@ -181,28 +181,6 @@ Compare those with the gradient descent, Nelder-Mead (possibly by `optim(..., me
 Remember the DRY principle (don't repeat yourself). Here is a example of how to plot several lines in a figure:
 
 ***
-```{r}
-res_bfgs <- cumprod(runif(10))
-res_dfp <- cumprod(runif(10))
-res_sr1 <- cumprod(runif(10))
-
-nms <- c("BFGS", "DFP", "SR1")
-clrs <- c("black", "red", "blue")
-x_plot <- list(res_bfgs, res_dfp, res_sr1)
-
-x_lim <- c(1, max(sapply(x_plot, length)))
-y_lim <- range(sapply(x_plot, range))
-
-plot(seq_along(x_plot[[1]]), x_plot[[1]], 
-     type = "l", col = clrs[1], 
-     xlim = x_lim, ylim = y_lim,
-     xlab = "Iteration",
-     ylab = "Some value")
-for (i in 2L:length(x_plot)) {
-  lines(seq_along(x_plot[[i]]), x_plot[[i]], col = clrs[i])
-}
-legend("topright", legend = nms, col = clrs, lty = 1)
-```
 
 ```{r}
 steepest_descent <- function(f, g, x_k, alpha, c, rho, tol, k_max) {
