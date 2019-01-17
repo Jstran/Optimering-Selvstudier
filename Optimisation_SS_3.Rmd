@@ -148,8 +148,6 @@ DFP <- function(f, g, x_k, alpha, c, rho, tol, k_max){
 ***
 Compare those with the gradient descent, Nelder-Mead (possibly by `optim(..., method = "Nelder-Mead")`) and `R`'s own BFGS implementation (`optim(..., method = "BFGS")`) on the problems given above: What are the differences? What is the performance difference (number of iterations, execution time e.g. `system.time`)? What impact does the choice of initial matrix (and possibly using (6.20)) have on the quasi-Newton methods?
 
-Remember the DRY principle (don't repeat yourself). Here is a example of how to plot several lines in a figure:
-
 ***
 
 Undersøger antal iterationer for de forskellige metoder. Der benyttes Rosenbrock funktionen
@@ -344,19 +342,19 @@ rho <- 0.5
 k_max <- 10000
 
 # Sammenligner metoderne med fejl med metoderne uden fejl, samt med Newton.
-BFGS_fejl    (f, g, x_k, alpha, c, rho, tol, k_max)
 BFGS(f, g, x_k, alpha, c, rho, tol, k_max)
-DFP_fejl(f, g, x_k, alpha, c, rho, tol, k_max)
+BFGS_fejl    (f, g, x_k, alpha, c, rho, tol, k_max)
 DFP(f, g, x_k, alpha, c, rho, tol, k_max)
+DFP_fejl(f, g, x_k, alpha, c, rho, tol, k_max)
 Newton(f, g, x_k, alpha, c, rho, tol, k_max)
 
 
 # Bruger funktionen microbenchmark til at sammenligne tidsforbeuget. 
 microbenchmark(
-BFGS_fejl    (f, g, x_k, alpha, c, rho, tol, k_max),
 BFGS         (f, g, x_k, alpha, c, rho, tol, k_max),
-DFP_fejl     (f, g, x_k, alpha, c, rho, tol, k_max),
+BFGS_fejl    (f, g, x_k, alpha, c, rho, tol, k_max),
 DFP          (f, g, x_k, alpha, c, rho, tol, k_max),
+DFP_fejl     (f, g, x_k, alpha, c, rho, tol, k_max),
 Newton       (f, g, x_k, alpha, c, rho, tol, k_max),
 times = 10
 )
