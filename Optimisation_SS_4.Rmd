@@ -145,7 +145,41 @@ x_lm <- coefficients(lm_cars)
 
 x_lm
 ```
+**QR-faktorisering**
 
+_QR-faktoriseringen_ af *J* er givet ved
+\begin{align*}
+    JP & = QR
+         = Q\begin{bmatrix}
+            R\\
+            0
+            \end{bmatrix}
+         = \begin{bmatrix}
+         Q_1  Q_2
+           \end{bmatrix}  
+           \begin{bmatrix}
+             R\\
+             0
+           \end{bmatrix}
+         = Q_1R\tag{10.17}, 
+\end{align*}
+hvor
+
+* $P$ er en $n \times n$ permutationsmatrix.
+* $Q$ er en $m \times m$ ortogonalmatrix.
+* $Q_1$ er de første $n$ søjler i $Q$.
+* $R$ er en $n \times n$ øvre trekantsmatrix.
+
+Der haves at
+\begin{align*}
+\|J\boldsymbol{x}-\boldsymbol{y}\| 
+     &=  \left\|R(P^\top\boldsymbol{x})-Q_1^\top\boldsymbol{y}\right\|^2 + \left\|Q_2^\top\boldsymbol{y}\right\|^2.\tag{10.18}
+\end{align*}
+Da kan $\|J\boldsymbol{x}-\boldsymbol{y}\|$ minimeres ved at tvinge første udtryk mod nul, og altså opnås
+\begin{align*}
+    \boldsymbol{x}^* = PR^{-1} Q_1^\top \boldsymbol{y}.
+\end{align*}
+Dette gøres i praksis ved at løse $Rz=Q_1^\top\boldsymbol{y}$, for derefter at permutere komponenterne af $\boldsymbol{z}$, for at opnå $\boldsymbol{x}^*=P\boldsymbol{z}$.
 ```{r}
 qr.coef(qr(J),cars$dist)
 ```
