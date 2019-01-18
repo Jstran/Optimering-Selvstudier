@@ -83,7 +83,7 @@ Ligning (10.14) er 'normalligningerne'.
 
 
 
-Vil finde en model på formen "$\text{dist} = b_0 + b_1 * \text{speed}$". Det vil sige vores designmatrix er som følgende
+Vil finde en model på formen "$\text{dist} = x_0 + x_1 \cdot \text{speed}$". Det vil sige vores designmatrix er som følgende
 ```{r}
 designmatrix <- matrix(1, nrow = length(cars$speed), ncol = 2)
 designmatrix[,2] <- cars$speed
@@ -92,16 +92,16 @@ Vil bestemme J (jacobi-matricen), den er givet ved
 ```{r}
 J <- designmatrix
 ```
-Skal nu finde de $x$-værdier (normalt vores betaer) som gør at residualerne er mindst. Et minimum for x'erne skal jf. (10.14) opfylde $J^\top J=J^\top\cdot dist$. For at løse dette bruges Cholesky, hvor $A=J^\top J$ og $b=J^\top \cdot dist$, da fås at $Ax=b$:
+Skal nu finde de $x$-værdier (normalt vores betaer) som gør at residualerne er mindst. Et minimum for x'erne skal jf. (10.14) opfylde $J^\top J \boldsymbol x=J^\top\cdot dist$. For at løse dette benyttes Cholesky-metoden, hvor $A=J^\top J$ og $\boldsymbol b=J^\top \cdot dist$, da fås at $A\boldsymbol x=\boldsymbol b$:
 ```{r}
 A <- t(J) %*% J
 b <- t(J) %*% cars$dist
 ```
-Der skal nu løses $Ax=b$. Dette gøres ved brug af Cholesky. Først implementeres en Cholesky algoritme.
+Der skal nu løses $A\boldsymbol x=\boldsymbol b$. Dette gøres ved brug af Cholesky-metode. Først implementeres der en algoritme der udfører en Cholesky faktorisering.
 
 ```{r}
 CholAlg <- function(A){
-if(is.positive.definite(A)){ # Tjekker dog ikke om den der symetrisk
+if(is.positive.definite(A)){ # Tjekker dog ikke om den der symetrisk (kommer fra matrixcalc)
   n <- dim(A)[1]
   L <- matrix(0, nrow = n, ncol = n)
   for (i in 1:n) {
@@ -117,27 +117,27 @@ if(is.positive.definite(A)){ # Tjekker dog ikke om den der symetrisk
   }
   return(t(L))
 }
-else {stop("Matricen A er ikke positiv definit")}
+else {stop("Inputmatricen er ikke positiv definit")}
 }
 ```
 
-Nu kan $L$ findes, sådan at $A=LL^\top$. (Bemærk: $CholAlg(A) = L^\top$, ligesom Rs chol funktion.)
+Nu kan $L$ findes, sådan at $A=LL^\top$. (Bemærk: $CholAlg(A) = L^\top$ som er en øvre trekantsmatrix, ligesom R's chol funktion.)
 ```{r}
 L <- t(CholAlg(A))
 ```
-Finder $z$ udfra $Lz=b$. Da $L$ er en nedre trekantsmatrix, vil der ved brug af forwardsolving skulle løses $n$ lineære ligninger med én ubekendt.
+Finder $\boldsymbol z$ ud fra $L\boldsymbol z=\boldsymbol b$. Da $L$ er en nedre trekantsmatrix, vil der ved brug af forwardsolving skulle løses $n$ lineære ligninger med én ubekendt.
 ```{r}
 z <- forwardsolve(L,b)
 ```
-Finder nu $x$ udfra $L^\top x=z$. Da $L^\top$ er en nedre trekantsmatrix, vil der ved brug af backwardsolving skulle løses $n$ lineære ligninger med én ubekendt.
+Finder nu $\boldsymbol x$ udfra $L^\top \boldsymbol x=\boldsymbol z$. Da $L^\top$ er en nedre trekantsmatrix, vil der ved brug af backwardsolving skulle løses $n$ lineære ligninger med én ubekendt.
 ```{r}
 x_star <- backsolve(t(L), z)
 ```
-Nu haves de $x$-værdier (betaer) som minimerer residualerne ($Jx-dist$)
+Nu haves de $x$-værdier (betaer) som minimerer residualerne ($J\boldsymbol x-dist$)
 ```{r}
 x_star
 ```
-Disse x-værdier kan sammenlignes med de værdier som fås ved brug lm-funktionen
+Disse $x$-værdier kan sammenlignes med de værdier som fås ved brug *lm*-funktionen
 ```{r}
 lm_cars <- lm(cars$dist ~ cars$speed, data = cars)
 
@@ -148,8 +148,9 @@ x_lm
 
 ```{r}
 qr.coef(qr(J),cars$dist)
-qr(J)
 ```
+
+
 ```{r}
 svdfact <- svd(J)
 #svdfact$u %*% diag(svdfact$d) %*% t(svdfact$v)
