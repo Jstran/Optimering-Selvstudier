@@ -46,13 +46,13 @@ J(\boldsymbol x) =
   \frac{\partial r_2}{\partial x_1} & \frac{\partial r_2}{\partial x_2} & \cdots & \frac{\partial r_2}{\partial x_m} \\
   \vdots & \vdots & \ddots & \vdots \\
   \frac{\partial r_m}{\partial x_1} & \frac{\partial r_m}{\partial x_2} & \cdots & \frac{\partial r_m}{\partial x_m}
-\end{bmatrix}
+\end{bmatrix}\tag{10.3}
 \end{align*}
 Gradienten og Hessematricen for $f$ kan udtrykkes som
 \begin{align*}
-\nabla f(x) &= \sum_{j = 1}^{m}r_{j}(x)\nabla r_{j}(x)=J(x)^\top r(x)\\
+\nabla f(x) &= \sum_{j = 1}^{m}r_{j}(x)\nabla r_{j}(x)=J(x)^\top r(x)\tag{10.4}\\
 \nabla ^ { 2 } f ( x ) &= \sum _ { j = 1 } ^ { m } \nabla r _ { j } ( x ) \nabla r _ { j } ( x ) ^ \top + \sum _ { j = 1 } ^ { m } r _ { j } ( x ) \nabla ^ { 2 } r _ { j } ( x )\\
-&= J ( x )^\top J ( x ) + \sum _ { j = 1 } ^ { m } r _ { j } ( x ) \nabla ^ { 2 } r _ { j } ( x )
+&= J ( x )^\top J ( x ) + \sum _ { j = 1 } ^ { m } r _ { j } ( x ) \nabla ^ { 2 } r _ { j } ( x )\tag{10.5}
 \end{align*}
 ***
 
