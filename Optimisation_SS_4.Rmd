@@ -183,7 +183,34 @@ Dette gøres i praksis ved at løse $Rz=Q_1^\top\boldsymbol{y}$, for derefter at
 ```{r}
 qr.coef(qr(J),cars$dist)
 ```
+**SVD-Metoden**
 
+_SVD-faktoriseringen_ for $J$ har er givet ved
+\begin{align*}
+    J   = U \begin{bmatrix} S \\ 0 \end{bmatrix} V^\top, 
+        = \begin{bmatrix} U_1 & U_2 \end{bmatrix} \begin{bmatrix} S \\ 0 \end{bmatrix} V^\top,
+        = U_1 S V^\top\tag{10.19},
+\end{align*}
+hvor
+
+* $U$ er en $m \times m$ matrix.
+* $U_1$ består af de første $n$ søjler af $U$, og $U_2$ består af de sidste $m - n$ søjler.
+* $V$ er en $n \times n$ ortogonalmatrix.
+* $S$ er en $n \times n$ diagonalmatrix med de singulære værdier, $\sigma_1 \geq \sigma_2 \geq \cdots \geq \sigma_n > 0$. 
+
+Der haves at
+\begin{align*}
+    \| J \boldsymbol x - \boldsymbol y \|^2
+    = \| S(V^\top \boldsymbol x) - U_1^\top \boldsymbol y \|^2 + \| U_2^\top \boldsymbol y \|^2, \tag{10.20}
+\end{align*}
+som kan minimeres ved at tvinge første led mod nul. Da vil minimizeren være givet ved
+\begin{align*}
+    \boldsymbol x^* = V S^{-1} U_1^\top \boldsymbol y.
+\end{align*}
+Ved at betegne den $i$'te søjle i $U$ og $V$ som henholdsvis $\boldsymbol{u}_i, \in \mathbb R^m$ og $\boldsymbol v_i \in \mathbb R^n$, fås
+\begin{align*}
+    \boldsymbol{x}^* = \sum_{i = 1}^n \frac{\boldsymbol{u}_i ^\top \boldsymbol{y}}{\sigma_i}\boldsymbol{v}_i. \tag{10.21}
+\end{align*}
 
 ```{r}
 svdfact <- svd(J)
