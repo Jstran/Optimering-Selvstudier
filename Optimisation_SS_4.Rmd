@@ -181,7 +181,17 @@ Da kan $\|J\boldsymbol{x}-\boldsymbol{y}\|$ minimeres ved at tvinge første udtr
 \end{align*}
 Dette gøres i praksis ved at løse $Rz=Q_1^\top\boldsymbol{y}$, for derefter at permutere komponenterne af $\boldsymbol{z}$, for at opnå $\boldsymbol{x}^*=P\boldsymbol{z}$.
 ```{r}
-qr.coef(qr(J),cars$dist)
+QRfun <- function(A){
+  QR <- qr(A)
+  Q <- qr.Q(QR)
+  R <- qr.R(QR)
+  return(list(Q = Q , R = R))
+}
+
+QR <- QRfun(J)
+z <- backsolve(QR$R, t(QR$Q)%*%cars$dist ) ; z
+
+
 ```
 **SVD-Metoden**
 
