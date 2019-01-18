@@ -145,6 +145,19 @@ x_lm <- coefficients(lm_cars)
 
 x_lm
 ```
+
+```{r}
+qr.coef(qr(J),cars$dist)
+qr(J)
+```
+```{r}
+svdfact <- svd(J)
+#svdfact$u %*% diag(svdfact$d) %*% t(svdfact$v)
+
+
+svdfact$v %*% diag(1/svdfact$d) %*% t(svdfact$u) %*% cars$dist
+```
+
 ***
 
 # Exercise 2: NLS
