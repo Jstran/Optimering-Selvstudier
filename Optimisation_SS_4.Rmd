@@ -72,7 +72,7 @@ Gradienten og Hessematricen er nu på formen
   \nabla f(\boldsymbol x) &= J^\top (J\boldsymbol x - \boldsymbol y)\\
   \nabla^2 f(\boldsymbol x) &= J^\top J.
 \end{align*}
-Da hessematricen, $\nabla^2 f(\boldsymbol x) &= J^\top J$, er positiv semidefinit, er $f$ konveks. Jf. Sætning 2.5 gælder der så at ethvert punkt $\boldsymbol{x}^*$ der opfylder $\nabla f(\boldsymbol{x}^*)=0$ er en 'global minimiser' af $f$. Derfor må $\boldsymbol{x}^*$ opfylde
+Da hessematricen, $\nabla^2 f(\boldsymbol x)=  J^\top J$, er positiv semidefinit, er $f$ konveks. Jf. Sætning 2.5 gælder der så at ethvert punkt $\boldsymbol{x}^*$ der opfylder $\nabla f(\boldsymbol{x}^*)=0$ er en 'global minimiser' af $f$. Derfor må $\boldsymbol{x}^*$ opfylde
 \begin{align} 
   0 = \nabla f(\boldsymbol{x}^*) &= J^\top (J\boldsymbol{x}^* - \boldsymbol y)\nonumber\\
   &\Updownarrow\nonumber\\
@@ -96,7 +96,7 @@ Skal nu finde de $x$-værdier (normalt vores betaer) som gør at residualerne er
 A <- t(J) %*% J
 b <- t(J) %*% cars$dist
 ```
-Der skal nu løses $Ax=b$. Dette gøres ved brug af Cholesky. Først findes $L$ sådan at $A=LL^\top $. (Bemærk: $chol(A) = L^\top $)
+Der skal nu løses $Ax=b$. Dette gøres ved brug af Cholesky. Først findes $L$ sådan at $A=LL^\top$. (Bemærk: $chol(A) = L^\top$)
 ```{r}
 L <- t(chol(A))
 ```
@@ -104,7 +104,7 @@ Finder $z$ udfra $Lz=b$. Da $L$ er en nedre trekantsmatrix, vil der ved brug af 
 ```{r}
 z <- forwardsolve(L,b)
 ```
-Finder nu $x$ udfra $L^\top x=z$. Da $L^\top $ er en nedre trekantsmatrix, vil der ved brug af backwardsolving skulle løses $n$ lineære ligninger med én ubekendt.
+Finder nu $x$ udfra $L^\top x=z$. Da $L^\top$ er en nedre trekantsmatrix, vil der ved brug af backwardsolving skulle løses $n$ lineære ligninger med én ubekendt.
 ```{r}
 x_star <- backsolve(t(L), z)
 ```
