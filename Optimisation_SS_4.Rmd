@@ -87,15 +87,20 @@ Vil finde en model på formen "$\text{dist} = x_0 + x_1 \cdot \text{speed}$". De
 ```{r}
 designmatrix <- matrix(1, nrow = length(cars$speed), ncol = 2)
 designmatrix[,2] <- cars$speed
+y <- cars$dist
 ```
 Vil bestemme J (jacobi-matricen), den er givet ved 
 ```{r}
 J <- designmatrix
 ```
-Skal nu finde de $x$-værdier (normalt vores betaer) som gør at residualerne er mindst. Et minimum for x'erne skal jf. (10.14) opfylde $J^\top J \boldsymbol x=J^\top\cdot dist$. For at løse dette benyttes Cholesky-metoden, hvor $A=J^\top J$ og $\boldsymbol b=J^\top \cdot dist$, da fås at $A\boldsymbol x=\boldsymbol b$:
+Skal nu finde de $x$-værdier som gør at residualerne er mindst. Et minimum for x'erne skal jf. (10.14) opfylde $J^\top J \boldsymbol x=J^\top\cdot dist$. Dette kan gøres ved brug af forskellige faktoriseringsmetoder.
+
+*Cholesky*
+
+For at bestemme $x^*$ benyttes Cholesky-metoden, hvor $A = J^\top J$ og $\boldsymbol b = J^\top \cdot dist$, da fås at $A\boldsymbol x=\boldsymbol b$:
 ```{r}
 A <- t(J) %*% J
-b <- t(J) %*% cars$dist
+b <- t(J) %*% y
 ```
 Der skal nu løses $A\boldsymbol x=\boldsymbol b$. Dette gøres ved brug af Cholesky-metode. Først implementeres der en algoritme der udfører en Cholesky faktorisering.
 
@@ -121,7 +126,7 @@ else {stop("Inputmatricen er ikke positiv definit")}
 }
 ```
 
-Nu kan $L$ findes, sådan at $A=LL^\top$. (Bemærk: $CholAlg(A) = L^\top$ som er en øvre trekantsmatrix, ligesom R's chol funktion.)
+Nu kan $L$ findes, sådan at $A = LL^\top$. (Bemærk: $CholAlg(A) = L^\top$ som er en øvre trekantsmatrix, ligesom R's chol funktion.)
 ```{r}
 L <- t(CholAlg(A))
 ```
@@ -131,11 +136,11 @@ z <- forwardsolve(L,b)
 ```
 Finder nu $\boldsymbol x$ udfra $L^\top \boldsymbol x=\boldsymbol z$. Da $L^\top$ er en nedre trekantsmatrix, vil der ved brug af backwardsolving skulle løses $n$ lineære ligninger med én ubekendt.
 ```{r}
-x_star <- backsolve(t(L), z)
+x_chol <- backsolve(t(L), z)
 ```
 Nu haves de $x$-værdier (betaer) som minimerer residualerne ($J\boldsymbol x-dist$)
 ```{r}
-x_star
+x_chol
 ```
 Disse $x$-værdier kan sammenlignes med de værdier som fås ved brug *lm*-funktionen
 ```{r}
@@ -181,18 +186,23 @@ Da kan $\|J\boldsymbol{x}-\boldsymbol{y}\|$ minimeres ved at tvinge første udtr
 \end{align*}
 Dette gøres i praksis ved at løse $Rz=Q_1^\top\boldsymbol{y}$, for derefter at permutere komponenterne af $\boldsymbol{z}$, for at opnå $\boldsymbol{x}^*=P\boldsymbol{z}$.
 ```{r}
+# Definerer en funktion til QR-faktorisering på baggrund af R's implementerede QR funktion.
 QRfun <- function(A){
   QR <- qr(A)
-  Q <- qr.Q(QR)
+  Q1 <- qr.Q(QR)
   R <- qr.R(QR)
-  return(list(Q = Q , R = R))
+  return(list(Q1 = Q1 , R = R))
 }
 
-QR <- QRfun(J)
-z <- backsolve(QR$R, t(QR$Q)%*%cars$dist ) ; z
+# Finder QR faktoriseringen for J.
+QR_cars <- QRfun(J)
 
-
+# Minimizeren bestemmes.
+z <- backsolve(QR_cars$R, t(QR_cars$Q1) %*% y)
+P <- diag(dim(J)[2])
+x_qr <- P %*% z
 ```
+
 **SVD-Metoden**
 
 _SVD-faktoriseringen_ for $J$ har er givet ved
@@ -223,12 +233,22 @@ Ved at betegne den $i$'te søjle i $U$ og $V$ som henholdsvis $\boldsymbol{u}_i,
 \end{align*}
 
 ```{r}
+# SVD faktorisering ved brug af R's indbyggede funktion.
 svdfact <- svd(J)
-#svdfact$u %*% diag(svdfact$d) %*% t(svdfact$v)
 
+V <- svdfact$v 
+S_inv <- diag(1/svdfact$d) 
+U1 <- svdfact$u
 
-svdfact$v %*% diag(1/svdfact$d) %*% t(svdfact$u) %*% cars$dist
+# Minimizeren bestemmes.
+x_svd <- V %*% S_inv %*%  t(U1) %*% y; x_svd
 ```
+
+Det ses at alle de tre faktoriseringsmetoder giver det samme resultat som *lm* funktionen gør.
+```{r}
+data.frame(Cholesky = x_chol , QR = x_qr , SVD = x_svd , LM = x_lm)
+```
+
 
 ***
 
