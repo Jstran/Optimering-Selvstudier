@@ -315,8 +315,4 @@ pop.mod.LM <- nlsLM(population ~ theta1/(1 + exp(-(theta2 + theta3*year))), star
 
 summary(pop.mod.LM)
 ```
-Vælges $\theta_1 = 50$ som startværdi, kan *GN* ikke konverge, hvorimod *LM* kan. 
-
-
-
-
+Vælges f.eks. $\theta_1 = 50$ som startværdi, kan *GN* ikke konverge, hvorimod *LM* kan. 
