@@ -6,6 +6,7 @@ output: html_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(matrixcalc)
+library(car)
 ```
 Modellen der arbejdes med er
 \begin{align*}
@@ -64,7 +65,7 @@ Hvad er et OLS problem?
 
 ***
 
-I tilfældet af at $\phi(\boldsymbol x;\boldsymbol t)$ er en lineær funktion af $\boldsymbol x$, vil det medføre at residualerne $r_j(\boldsymbol x)$ også er lineære. Så kaldes det problem man gerne vil løse et 'Linear least square problem'. Så kan residualerne opstilles $\boldsymbol r(\boldsymbol x) = J\boldsymbol x - \boldsymbol y$ og objektfunktionen \eqref{numeriskresid} kan skrives
+I tilfældet af at $\phi(\boldsymbol x;\boldsymbol t)$ er en lineær funktion af $\boldsymbol x$, vil det medføre at residualerne $r_j(\boldsymbol x)$ også er lineære. Så kaldes det problem man gerne vil løse et 'Linear least square problem'. Så kan residualerne opstilles $\boldsymbol r(\boldsymbol x) = J\boldsymbol x - \boldsymbol y$, hvor $J$ er designmatricen og objektfunktionen \eqref{numeriskresid} kan skrives
 \begin{align}
   f(\boldsymbol x) = \frac{1}{2}||J\boldsymbol x - \boldsymbol y||^2 \tag{10.13}.
 \end{align}
@@ -89,7 +90,7 @@ designmatrix <- matrix(1, nrow = length(cars$speed), ncol = 2)
 designmatrix[,2] <- cars$speed
 y <- cars$dist
 ```
-Vil bestemme J (jacobi-matricen), den er givet ved 
+Vil bestemme J, den er givet ved 
 ```{r}
 J <- designmatrix
 ```
@@ -263,3 +264,16 @@ Discuss which of Gauss-Newton (`nls()`) and Levenberg-Marquardt (`minpack.lm` li
 Can you solve this optimisation problem in other ways than by Gauss-Newton/Levenberg-Marquardt?
 
 ***
+
+```{r}
+
+plot(population ~ year, data=USPop, main="(a)")
+abline(lm(population ~ year, data=USPop))
+
+curve(1/(1+exp(-(-1 + 1*x))), from=-5, to=5, main="(b)")
+abline(h=1/2, lty=2)
+abline(v=1, lty=2)
+
+
+```
+
