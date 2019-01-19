@@ -7,6 +7,7 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 library(matrixcalc)
 library(car)
+library(minpack.lm)
 ```
 Modellen der arbejdes med er
 \begin{align*}
@@ -270,10 +271,18 @@ Can you solve this optimisation problem in other ways than by Gauss-Newton/Leven
 plot(population ~ year, data=USPop, main="(a)")
 abline(lm(population ~ year, data=USPop))
 
-curve(1/(1+exp(-(-1 + 1*x))), from=-5, to=5, main="(b)")
+curve(1/(1+exp(-(-1 + 1*x))), from=-5, to=5, main="(b)", add = TRUE)
 abline(h=1/2, lty=2)
 abline(v=1, lty=2)
 
+start_theta <- list(theta1 = 400, theta2 = -49, theta3 = 0.025)
 
+pop.mod.GN <- nls(population ~ theta1/(1 + exp(-(theta2 + theta3*year))), start=start_theta, data=USPop)
+
+summary(pop.mod.GN)
+
+pop.mod.LM <- nlsLM(population ~ theta1/(1 + exp(-(theta2 + theta3*year))), start=start_theta, data=USPop)
+
+summary(pop.mod.LM)
 ```
 
