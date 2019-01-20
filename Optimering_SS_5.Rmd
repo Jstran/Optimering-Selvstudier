@@ -26,12 +26,12 @@ while (norm(r_k , type = "2") > tolerance && k <= k_max) {
   beta_k     <- (t(r_k) %*% A %*% p_k) / (t(p_k) %*% A %*% p_k)
   p_k        <- -r_k + beta_k[1] * p_k
   k          <- k+1
-  print(x_k) # Dette giver mig progress i form af hvor man bev?ger sig hen (hvor man er)
+  print(x_k) # Dette giver mig progress i form af hvor man bevæger sig hen (hvor man er)
 }
-  if(norm(r_k, type ="2")==0){print("Vi har noget nulpunktet \n")} 
-# Husk dobbelt lig med, n?r den skal teste om noget er lig noget andet
+  if(norm(r_k, type ="2")==0){cat("Vi har nået nulpunktet \n")} 
+# Husk dobbelt lig med, når den skal teste om noget er lig noget andet
 
-  if(k==k_max){print("N?et antal max iterationer \n")}
+  if(k==k_max){cat("Nået antal max iterationer \n")}
   return(x_k)
 }
 
