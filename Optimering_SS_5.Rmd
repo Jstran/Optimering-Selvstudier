@@ -13,12 +13,85 @@ Implement the linear conjugate gradient algorithm and compare it with one or mor
 
 The comparison could for example be done by considering a linear regression problem (e.g. `cars`) and/or a quadratic form and its corresponding formulation of solving a linear system of equations.
 
+```{r}
+MinimizeCG51 <- function(x_k, A, b, k_max = 1000, tolerance = sqrt(.Machine$double.eps)) {
+  # x_0 givet
+r_k <- A %*% x_k - b
+p_k <- -r_k
+k   <- 0
+while (norm(r_k , type = "2") > tolerance && k <= k_max) { 
+  alpha_k    <- -(t(r_k) %*% p_k) / (t(p_k) %*% A %*% p_k)
+  x_k        <- x_k + alpha_k[1] * p_k
+  r_k        <- A %*% x_k - b
+  beta_k     <- (t(r_k) %*% A %*% p_k) / (t(p_k) %*% A %*% p_k)
+  p_k        <- -r_k + beta_k[1] * p_k
+  k          <- k+1
+  print(x_k) # Dette giver mig progress i form af hvor man bev?ger sig hen (hvor man er)
+}
+  if(norm(r_k, type ="2")==0){print("Vi har noget nulpunktet \n")} 
+# Husk dobbelt lig med, n?r den skal teste om noget er lig noget andet
+
+  if(k==k_max){print("N?et antal max iterationer \n")}
+  return(x_k)
+}
+
+```
+Test
+
+
+```{r}
+
+data(cars)
+X      <- matrix(1, nrow = length(cars$speed), ncol=2)
+X[,2]  <- cars$speed
+x_k    <- matrix(1, nrow = 2, ncol=1)
+A      <- t(X) %*% X
+b      <- t(X) %*% cars$dist
+
+MinimizeCG51(x_k , A , b)
+
+
+```
+
 # Exercise 2: Non-linear conjugate gradient
 
 What are the differences between non-linear and linear conjugate gradient methods? 
 
 Experiment with `R`'s implementation of conjugate gradient: `optim(par, fn, gr, method = "CG")` (see `?optim`). Use it to solve an optimisation problem.
 
+```{r}
+MinimizeCG52 <- function(x_k, A, b, k_max = 1000, tolerance = sqrt(.Machine$double.eps)) {
+ # x_0 givet
+r_k <- A %*% x_k - b
+p_k <- -r_k
+k   <- 0
+while (norm(r_k , type = "2") > tolerance && k <= k_max) { 
+  alpha_k     <- (t(r_k) %*% r_k) / (t(p_k) %*% A %*% p_k)
+  x_k         <- x_k + alpha_k[1] * p_k
+  r_k0        <- r_k
+  r_k        <- r_k + alpha_k[1] * A %*% p_k
+  beta_k1     <- (t(r_k) %*% r_k) / (t(r_k0) %*% r_k0)
+  p_k         <- -r_k + beta_k1[1] * p_k
+  k           <- k+1
+  print(x_k)
+}
+  return(x_k)
+}
+
+```
+Test
+```{r}
+data(cars)
+X      <- matrix(1, nrow = length(cars$speed), ncol=2)
+X[,2]  <- cars$speed
+x_k    <- matrix(1, nrow = 2, ncol=1)
+A      <- t(X) %*% X
+b      <- t(X) %*% cars$dist
+
+MinimizeCG52(x_k , A , b)
+
+
+```
 # Exercise 3: Conjugate gradient
 
 When are conjugate gradient methods useful? How is the linear conjugate gradient different from for example solving the corresponding normal equations directly?
