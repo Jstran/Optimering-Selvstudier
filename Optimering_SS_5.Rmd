@@ -1,0 +1,28 @@
+---
+title: "Optimisation: Self study 5 (Conjugate gradient)"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Exercise 1: Conjugate gradient
+
+Implement the linear conjugate gradient algorithm and compare it with one or more general optimisation methods (e.g. steepest descent, BFGS, ...). For example by plotting the gradient norm and/or error norm at each iteration.
+
+The comparison could for example be done by considering a linear regression problem (e.g. `cars`) and/or a quadratic form and its corresponding formulation of solving a linear system of equations.
+
+# Exercise 2: Non-linear conjugate gradient
+
+What are the differences between non-linear and linear conjugate gradient methods? 
+
+Experiment with `R`'s implementation of conjugate gradient: `optim(par, fn, gr, method = "CG")` (see `?optim`). Use it to solve an optimisation problem.
+
+# Exercise 3: Conjugate gradient
+
+When are conjugate gradient methods useful? How is the linear conjugate gradient different from for example solving the corresponding normal equations directly?
+
+# Exercise 4: Be creative!
+
+If you have anything, put it here.
