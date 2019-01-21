@@ -167,6 +167,8 @@ Account for theoretical properties of the gradient descent.
 
 Dette ses af konturplottet hvor iterationerne for Steepest Descent er tegnet ind. Det er ikke så nemt at se på ovenstående plot, men i Steepest Descent vil søgningsretningen, $p_k$, stå ortogonalt på niveaukurverne i konturplottet.
 
+***
+
 # Exercise 2: Stochastic gradient descent / incremental gradient descent
 
 In the gradient descent method, all observations are used in each step. If the dataset is really big it may be a problem.
@@ -181,8 +183,8 @@ Instead, many smaller steps can be taken (either using one observation at a time
 Exercises:
 
 1. What is the difference between stochastic gradient descent and gradient descent?
-2. (Optional) Implement stochastic gradient descent. 
-3. (Optional) Illustrate the behaviour of the stochastic gradient descent, including:
-    + Different ways to choose step sizes.
-    + The total objective function with a discussion of how it differs from a similar plot from the gradient descent method.
-    + Some iterates in a plot showing the data (e.g. `plot(dist ~ speed, cars)`).
+
+***
+
+I Gradient Descent benyttes alle punkter for hver iteration, hvilket kan være et problem når der arbejdes med store datasæt, idet det kan kræve meget computerkapacitet. I Stokastisk Gradient Descent tager man i stedet skridt baseret på én eller få observationer. Denne metode vil derfor kræve mindre computerkapacitet.  
+
