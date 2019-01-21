@@ -178,9 +178,10 @@ k_max <- 10000
 datCG   <- MinimizeCG52(x_k , A , b, tol, k_max)
 datBFGS <- BFGS(f, g, x_k, alpha, c, rho, tol, k_max)
 datSD   <- steepest_descent(f, g, x_k, alpha, c, rho, tol, k_max)
+datlm   <- lm(cars$dist ~ cars$speed)  
 
 frame <- data.frame(CG = c(datCG$iter,datCG$par) , BFGS = c(datBFGS$iter,datBFGS$par) ,
-           SD = c(datSD$iter,datSD$par))
+           SD = c(datSD$iter,datSD$par), LM = c(NA, coef(datlm)))
 rownames(frame) <- c("Iter","x_1","x_2"); frame
 ```
 Det ses at, *CG* benytter to iterationer, hvilket er forventeligt, idet dimensionen af problemet er $n = 2$. Dette er færre iterationer end de to andre metoder.
@@ -194,8 +195,7 @@ microbenchmark(
   times = 1 , unit = "ms"
 )
 ```
-Det ses, at *CG* er den klart hurtigste af de tre metoder
-
+Det ses, at *CG* er den klart hurtigste af de tre metoder.
 
 ***
 # Exercise 2: Non-linear conjugate gradient
