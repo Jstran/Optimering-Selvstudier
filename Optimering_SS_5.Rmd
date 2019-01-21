@@ -92,6 +92,8 @@ steepest_descent <- function(f, g, x_k, alpha, c, rho, tol, k_max) {
 ```
 
 Tester implementation af conjugate gradient på cars datasættet og sammenligner med BFGS og steepest descent.
+
+MERE FYLDSGØRENDE TEKST
 Der ønskes at lave en model af bremselængde som funktion af farten. Dette giver objektfunktionen 
 \[
 f(a, b) = \frac{1}{n} \sum_{i = 1}^n (m(s_i) - d_i)^2,
@@ -137,13 +139,22 @@ MinimizeCG52(x_k , A , b, tol, k_max)$iter
 BFGS(f, g, x_k, alpha, c, rho, tol, k_max)$iter
 steepest_descent(f, g, x_k, alpha, c, rho, tol, k_max)$iter
 ```
+NOGET TEKST DER BESKRIVER HVAD DER SKER.
 
+
+***
 # Exercise 2: Non-linear conjugate gradient
 
 What are the differences between non-linear and linear conjugate gradient methods? 
 
 Experiment with `R`'s implementation of conjugate gradient: `optim(par, fn, gr, method = "CG")` (see `?optim`). Use it to solve an optimisation problem.
 
+***
+
+***
+
 # Exercise 3: Conjugate gradient
 
 When are conjugate gradient methods useful? How is the linear conjugate gradient different from for example solving the corresponding normal equations directly?
+
+***
