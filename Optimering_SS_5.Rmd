@@ -17,8 +17,45 @@ Implement the linear conjugate gradient algorithm and compare it with one or mor
 The comparison could for example be done by considering a linear regression problem (e.g. `cars`) and/or a quadratic form and its corresponding formulation of solving a linear system of equations.
 
 ***
-TEORI TEORI TEORI
+Lineære *conjugate gradient* er en iterativ metode til at løse et lineært ligningssystem
+\begin{align*}
+Ax = b.
+\end{align*}
+Dette svarer til at minimere følgende objektfunktion
+\begin{align*}
+ f( x)=\frac{1}{2}{x}^\top A {x}-{b}^\top {x},  
+\end{align*}
+idet 
+\begin{align*}
+    \nabla f( x) &= \frac{1}{2}2A{x}-{b}\\
+    &= A{x}-{b}.
+\end{align*}
+Sættes gradienten lig nul, fås
+\begin{align*}
+    A{x} = {b}.
+\end{align*}
+Residualerne af det lineære system er givet ved
+\begin{align*}
+    {r}({x})=\nabla f({x})=A{x}-{b}.
+\end{align*}
 
+For at benyttes CG skal der bruges en mængde conjugate vektorer, $\{p_0, p_1, \ldots, p_{n-1}\}$, det vil sige at der gælder $p_i^\top A p_j = 0, \; \forall i \neq j$. Disse kan bestemmes på forskellige måder. Givet et startpunkt, $x_0$, og en mængden af conjugate directions vektorer, er iterationerne givet ved
+\begin{align*}
+    x_{k+1} = x_k + \alpha_k p_k,
+\end{align*}
+hvor skridtlængden, $\alpha_k$, er givet ved $\text{argmin} (f(x_k+\alpha p_k))$. $\alpha_k$ kan eksplicit skrives som 
+\begin{align*}
+    \alpha_k = - \frac{r_k^\top p_k}{p^\top_k A P_k}.
+\end{align*}
+En *"bilig"* metode til at vælge mængden af conjugate vektorer er ved brug af *conjugate gradiant*. Her benyttes kun den forrige conjugate vektor til at regne en ny conjugate vektor. I conjugate gradient er hvert $p_k$ valgt til at være en linearkombination af det negative residual og den forrige retning.
+\begin{align*}
+    p_k = -r_k + \beta_k p_{k-1},
+\end{align*}
+hvor 
+\begin{align*}
+    \beta_k = \frac{r_k^\top A p_{k-1}}{p_{k-1}^\top A p_{k-1}}.
+\end{align*}
+Det er muligt nemt, at optimere ovenstående, sådan at der er færre matrix-vektor produkter for hver iteration. Dette ses i følgende algoritme, hvor $p_0$ er valgt til at være steepest descent retningen.
 ```{r}
 # Implementation af conjugate gradient
 MinimizeCG52 <- function(x_k, A, b, tol, k_max) {
@@ -27,7 +64,7 @@ MinimizeCG52 <- function(x_k, A, b, tol, k_max) {
  k   <- 0
  rTr <- t(r_k) %*% r_k
  while (norm(r_k , type = "2") > tol & k < k_max) { 
-   rTr_old   <- rTr
+   rTr_old <- rTr
    alpha_k <- rTr_old / (t(p_k) %*% A %*% p_k)
    x_k     <- x_k + alpha_k[1] * p_k
    r_k     <- r_k + alpha_k[1] * A %*% p_k
@@ -40,7 +77,7 @@ MinimizeCG52 <- function(x_k, A, b, tol, k_max) {
  return(sol)
 }
 ```
-Implementerer BFGS for at sammenligne med denne.
+Implementerer BFGS og Steepest Descent for at sammenligne med disse.
 
 ```{r}
 # Implementation af backtracking
@@ -147,7 +184,7 @@ microbenchmark(
   MinimizeCG52(x_k , A , b, tol, k_max),
   BFGS(f, g, x_k, alpha, c, rho, tol, k_max),
   steepest_descent(f, g, x_k, alpha, c, rho, tol, k_max),
-  times = 10 , unit = "ms"
+  times = 1 , unit = "ms"
 )
 ```
 
