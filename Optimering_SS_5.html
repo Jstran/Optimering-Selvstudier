@@ -125,23 +125,140 @@ $(document).ready(function () {
 </div>
 
 
+<hr />
 <div id="exercise-1-conjugate-gradient" class="section level1">
 <h1>Exercise 1: Conjugate gradient</h1>
 <p>Implement the linear conjugate gradient algorithm and compare it with one or more general optimisation methods (e.g. steepest descent, BFGS, …). For example by plotting the gradient norm and/or error norm at each iteration.</p>
 <p>The comparison could for example be done by considering a linear regression problem (e.g. <code>cars</code>) and/or a quadratic form and its corresponding formulation of solving a linear system of equations.</p>
+<hr />
+<p>TEORI TEORI TEORI</p>
+<pre class="r"><code># Implementation af conjugate gradient
+MinimizeCG52 &lt;- function(x_k, A, b, tol, k_max) {
+ r_k &lt;- A %*% x_k - b
+ p_k &lt;- -r_k
+ k   &lt;- 0
+ while (norm(r_k , type = &quot;2&quot;) &gt; tol &amp; k &lt;= k_max) { 
+   rTr     &lt;- t(r_k) %*% r_k
+   alpha_k &lt;- rTr / (t(p_k) %*% A %*% p_k)
+   x_k     &lt;- x_k + alpha_k[1] * p_k
+   r_old   &lt;- r_k
+   r_k     &lt;- r_k + alpha_k[1] * A %*% p_k
+   beta_k  &lt;- rTr / (t(r_old) %*% r_old)
+   p_k     &lt;- -r_k + beta_k[1] * p_k
+   k       &lt;- k + 1
+ }
+ sol &lt;- list(par = x_k , iter = k)
+ return(sol)
+}</code></pre>
+<p>Implementerer BFGS for at sammenligne med denne.</p>
+<pre class="r"><code># Implementation af backtracking
+backtracking_line_search &lt;- function(alpha, c, rho, x_k, p_k, g_k, f) {
+  alpha_k &lt;- alpha
+    repeat { 
+        lhs &lt;- f(x_k + alpha_k * p_k)
+        rhs &lt;- f(x_k) + c * alpha_k * g_k %*% p_k
+        if (lhs &lt;= rhs) break
+        alpha_k &lt;- rho * alpha_k
+    }
+    return(alpha_k)
+}
+
+# Implementation af BFGS
+BFGS &lt;- function(f, g, x_k, alpha, c, rho, tol, k_max){
+  k &lt;- 0
+  n &lt;- length(x_k)
+  H_k &lt;- I_n &lt;- diag(n)
+  g_k &lt;- tol + 1
+  while (norm(g_k, type=&quot;2&quot;) &gt; tol &amp; k &lt; k_max) {
+    g_k &lt;- g(x_k)
+    p_k &lt;- -  H_k %*% g_k
+    alpha_k &lt;- backtracking_line_search(alpha, c, rho, x_k, p_k, g_k, f)
+    x_k &lt;- x_k + alpha_k * p_k
+    s_k &lt;- alpha_k * p_k
+    y_k &lt;- g(x_k) - g_k
+    rho_k &lt;- 1 / (t(y_k) %*% s_k)[1]
+    H_k &lt;- (I_n - rho_k*s_k%*%t(y_k))%*%H_k%*%(I_n - rho_k*y_k%*%t(s_k)) + rho_k*s_k%*%t(s_k)
+    k &lt;- k + 1
+  }
+  sol &lt;- list(par = x_k , func = f(x_k) , grad = g_k , iter = k , inv_hess = H_k)
+  return(sol)
+}
+
+# Implementerer Steepest descent
+steepest_descent &lt;- function(f, g, x_k, alpha, c, rho, tol, k_max) {
+  k &lt;- 0
+    g_k &lt;- tol + 1 # For at komme i gang
+    
+    while ((norm(g_k,type=&quot;2&quot;) &gt; tol) &amp; (k &lt; k_max)) { # Type 2 er for vektorer
+        g_k &lt;- g(x_k)
+        p_k &lt;- -g_k 
+        alpha_k &lt;- backtracking_line_search(alpha , c, rho, x_k, p_k, g_k, f)
+        x_k &lt;- x_k + alpha_k * p_k
+        k &lt;- k + 1
+    }
+    sol &lt;- list(par = x_k , func = f(x_k) , grad = g_k , iter = k)
+    return(sol)
+}</code></pre>
+<p>Tester implementation af conjugate gradient på cars datasættet og sammenligner med BFGS og steepest descent.</p>
+<p>MERE FYLDSGØRENDE TEKST Der ønskes at lave en model af bremselængde som funktion af farten. Dette giver objektfunktionen <span class="math display">\[
+f(a, b) = \frac{1}{n} \sum_{i = 1}^n (m(s_i) - d_i)^2,
+\]</span></p>
+<pre class="r"><code>data(cars)
+
+# Objektfunktionen
+f &lt;- function(ab){
+  n &lt;- length(cars$dist)
+  s &lt;- cars$speed
+  d &lt;- cars$dist
+  return(1/n * sum((ab[1] + ab[2] * s - d)^2))
+}
+# Gradienten
+g &lt;- function(ab){
+  n &lt;- length(cars$speed)
+  s &lt;- cars$speed
+  d &lt;- cars$dist 
+  g_a &lt;- 1/n * sum(2 * (ab[1] + ab[2] * s - d) )
+  g_b &lt;- 1/n * sum(2 * (ab[1] + ab[2] * s - d) * s)
+  return(c(g_a,g_b))
+}
+
+# Bestemmer designmatricen.
+X &lt;-  matrix(1, nrow = length(cars$speed), ncol=2)
+X[,2] &lt;- cars$speed
+
+# Laver det om til et OLS problem.
+A &lt;- t(X) %*% X
+b &lt;- t(X) %*% cars$dist
+
+# Vil nu løse A x_k = b med de forskellige metoder. Vælger værdier til funktionerne
+x_k    &lt;- c(-5,10)
+alpha &lt;- 1    
+c &lt;- 1e-4
+tol &lt;- 1e-4
+rho &lt;- 0.5
+k_max &lt;- 10000
+
+
+MinimizeCG52(x_k , A , b, tol, k_max)$iter</code></pre>
+<pre><code>## [1] 10001</code></pre>
+<pre class="r"><code>BFGS(f, g, x_k, alpha, c, rho, tol, k_max)$iter</code></pre>
+<pre><code>## [1] 9</code></pre>
+<pre class="r"><code>steepest_descent(f, g, x_k, alpha, c, rho, tol, k_max)$iter</code></pre>
+<pre><code>## [1] 2411</code></pre>
+<p>NOGET TEKST DER BESKRIVER HVAD DER SKER.</p>
+<hr />
 </div>
 <div id="exercise-2-non-linear-conjugate-gradient" class="section level1">
 <h1>Exercise 2: Non-linear conjugate gradient</h1>
 <p>What are the differences between non-linear and linear conjugate gradient methods?</p>
 <p>Experiment with <code>R</code>’s implementation of conjugate gradient: <code>optim(par, fn, gr, method = &quot;CG&quot;)</code> (see <code>?optim</code>). Use it to solve an optimisation problem.</p>
+<hr />
+<hr />
 </div>
 <div id="exercise-3-conjugate-gradient" class="section level1">
 <h1>Exercise 3: Conjugate gradient</h1>
 <p>When are conjugate gradient methods useful? How is the linear conjugate gradient different from for example solving the corresponding normal equations directly?</p>
-</div>
-<div id="exercise-4-be-creative" class="section level1">
-<h1>Exercise 4: Be creative!</h1>
-<p>If you have anything, put it here.</p>
+<hr />
 </div>
 
 
