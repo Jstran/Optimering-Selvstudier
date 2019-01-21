@@ -44,6 +44,8 @@ Exercises:
 1. What is the gradient of $f$?
 
 ***
+
+Definerer først objektfunktionen i `R`.
 ```{r}
 f <- function(ab){
   n <- length(cars$dist)
@@ -60,7 +62,7 @@ Gradienten er udregnet i hånden til at være
 \nabla f(a, b) = \begin{pmatrix}1/n \sum^n_{i=1}2((a+bs_i)-d_i)\\ 1/n\sum^n_{i=1}2((a+bs_i)-d_i)s_i\end{pmatrix},
 \]
 
-Funktionen defineres i R
+Gradienten kan nu defineres i `R`
 ```{r}
 g <- function(ab){
   n <- length(cars$speed)
@@ -76,9 +78,33 @@ g <- function(ab){
 2. Implement gradient descent and use it to find the best straight line.
 
 ***
+I Line search er iterationerne givet ved 
+$$x_{k+1} = x_k + \alpha_k p_k,$$
+hvor $\alpha_k$ er skridtlængden og $p_k$ er søgningsretningen.
 
-For at implementere gradient descent, implementeres først backtracking. Funktionen defineres som følgende
+Ud fra Taylors sætning haves det at objektfunktionen kan skrives som
+\begin{align*}
+f(x_k+\alpha_kp_k)\approx f(x_k)+\alpha_kp_k^\top \nabla f_k,
+\end{align*}
+hvor det kan ses at hvis $p_k^\top\nabla f_k<0$, reduceres $f$ i denne retning. Det kan vises at $f$ reduceres mest for 
+$$p_k=-\nabla f_k.$$
+Denne retning kaldes *steepest descent*.
+
+Den skridtlængde der er mest optimal at vælge, er den der minimerer 
+$$f(x_k+\alpha p_k).$$
+Dette er kan dog være dyrt at bestemme og derfor kan der istedet pålægges $\alpha_k$ nogle betingelser.
+
+**Wolfe Conditions**
+\begin{align}
+    f(x_k+\alpha_kp_k) &\leq f(x_k)+c_1\alpha \nabla f_k^\top p_k,\\
+    \nabla f(x_k+\alpha_k p_k)^\top p_k &\geq c_2\nabla f_k^\top p_k,
+\end{align}
+hvor $0 < c_1 < c_2 < 1$.
+
+En metoder der bestemmer $\alpha_k$ baseret på den første Wolfe betingelse er Backtracking.
+Backtracking implementeres som følgende.
 ```{r}
+# Implemation af backtracking.
 backtracking_line_search <- function(alpha, c, rho, x_k, p_k, g_k, f) {
 	alpha_k <- alpha
 	repeat { 
@@ -91,11 +117,13 @@ backtracking_line_search <- function(alpha, c, rho, x_k, p_k, g_k, f) {
 }
 ```
 
+Nu hvor der er fundet en metode til at vælge skridtlængden $\alpha_k$, kan Steepest Descent implementeres. Her benyttes søgningsretningen $p_k = - \nabla f_k$ i hver iteration.
 
 ```{r}
+# Implemantation af Steepest Descent.
 steepest_descent <- function(f, g, x_k, alpha, c, rho, tol, k_max) {
 	
-  N <- 30
+  N <- 30 
 	x <- seq(-20,3,length=N)
 	y <- seq(1,7,  length=N)
   z <- Outer(x , y , f_xy)
@@ -119,20 +147,27 @@ steepest_descent <- function(f, g, x_k, alpha, c, rho, tol, k_max) {
 	
 	return(x_k)
 }
-
-x_sol <- steepest_descent(f, g, x_k   = c(1,5) , 
-                                alpha = 1      ,
-                                c     = 1e-4   , 
-                                rho   = 0.5    , 
-                                tol   = 1e-4   , 
-                                k_max = 20000)
 ```
 
-Bruges de funde værdier for a og b som koefficienter for den rette linje $m(s) = a + b \cdot s$ opnås følgende
+Steepest Descent andvendes på objektfunktionen.
+
+```{r}
+# Vælger værdier.
+x_k   <- c(1,5)
+alpha <-  1              
+c     <-  1e-4 
+rho   <-  0.5
+tol   <-  1e-4
+k_max <-  20000
+
+x_sol <- steepest_descent(f, g, x_k, alpha, c, rho, tol, k_max); x_sol
+```
+
+Bruges de funde værdier for $a$ og $b$ som koefficienter for den rette linje $m(s) = a + b \cdot s$ opnås følgende.
 ```{r}
 plot(dist ~ speed , cars)
 abline(x_sol , col = "red")
-legend(4,115,legend = "m(s) = a + bs" , col = "red" , lty = 1)
+legend(4 , 115 , legend = "m(s) = a + bs" , col = "red" , lty = 1)
 ```
 
 
@@ -141,14 +176,14 @@ What is meant by *the best* straight line in relation to the objective function 
 
 ***
 
-Objektfunktionen er givet ved summen af de kvadrerede residualer ganget med 1/n, og den bedste rette linje opnås netop ved de koefficienter der minimerer denne sum.  
+Objektfunktionen er givet ved summen af de kvadrerede residualer ganget med $1/n$, og den bedste rette linje opnås netop ved de koefficienter der minimerer denne sum.  
 
 ***
 Discuss different ways to determine the step sizes.
 
 ***
     
-I stedet for at bruge Backtracking til at bestemme skridtlængden kunne der i stedet benyttes zoom. Denne metode ville formendelig gøre, at Steepest Descent konvergerede hurtigere, idet zoom vil gøre at skridtlængden overholder strong Wolf, og dermed også sikre at skridtlængderne ikke er for små, hvilket Backtracking ikke nødvendigvis gør.
+I stedet for at bruge Backtracking til at bestemme skridtlængden kunne der i stedet benyttes zoom. Denne metode ville formendelig gøre, at Steepest Descent konvergerede hurtigere, idet zoom vil gøre at skridtlængden overholder strong Wolfe, og dermed også sikre at skridtlængderne ikke er for små, hvilket Backtracking ikke nødvendigvis gør.
 
 Udover zoom kan der også benyttes en fast skridtlængde. Dette vil dog gøre at Steepest Descent ikke nødvendigvis vil konvergere.
 

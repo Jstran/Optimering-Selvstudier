@@ -404,7 +404,7 @@ steepest_descent <- function(f, x_k, alpha, c, rho, tol, k_max,FUN) {
 ```
 
 ```{r}
-x_k <- c(1000,1000)
+x_k <- c(1,1)
 alpha <- 0.3
 c <- tol <- 1e-4
 rho <- 0.5
@@ -436,11 +436,7 @@ microbenchmark(
 steepest_descentnp(f, x_k , alpha , c , rho , tol , k_max , g) ,
 steepest_descentnp(f, x_k , alpha , c , rho , tol , k_max , FDm) ,
 steepest_descentnp(f, x_k , alpha , c , rho , tol , k_max , ExpCDm) ,
-unit = "ms"
+unit = "ms",
+times = 100
 )
 ```
-
-# Exercise 4: Be creative!
-
-If you have anything, put it here.
-

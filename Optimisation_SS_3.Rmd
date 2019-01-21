@@ -31,7 +31,7 @@ _Sekantligning_\
 \]
 hvor 
 \[
-    s_k = x_{k+1} - x_k = \alpha_k p_k, 
+    s_k = x_{k+1} - x_k = \alpha_k p_k, \qquad 
     y_k = \nabla f_{k+1} - \nabla f_k.
 \]
 
