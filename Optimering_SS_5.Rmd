@@ -207,8 +207,8 @@ Experiment with `R`'s implementation of conjugate gradient: `optim(par, fn, gr, 
 ***
 Den væsentligste forskel på lineær *CG* og ikke-lineær *CG* er formen for $\alpha_k$ og $\beta_k$. Ovenstående *CG* algoritme kan derfor udvides til, at kunne benyttes for ikke-lineære funktioner. 
 
-I det lineære tilfælde er $\alpha_k$ valgt som den værdi der minimerer den streng konveks kvadratiske objektfunktion 
-For ikke-lineære funktioner skal $\alpha_k$ vælges som den værdi der approksimativt minimerer obejktfunktionen langs retningen $p_k$.  
+
+I det lineære tilfælde er $\alpha_k$ valgt som den værdi der minimerer den lineære objektfunktion langs søgningsretningen $p_k$. I det ikke-lineære tilfælde vælges $\alpha_k$ ligeledes som den værdi der approksimativt minimerer obejktfunktionen langs retningen $p_k$. Den største forskel er altså at at objektfunktionen ikke er lineær. Fpr at bestemme skridtlængden $\alpah_k$ skal der gøres brug af en _line search algortime_  
 
 ***
 

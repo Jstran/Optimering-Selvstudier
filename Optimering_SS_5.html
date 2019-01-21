@@ -131,26 +131,64 @@ $(document).ready(function () {
 <p>Implement the linear conjugate gradient algorithm and compare it with one or more general optimisation methods (e.g. steepest descent, BFGS, …). For example by plotting the gradient norm and/or error norm at each iteration.</p>
 <p>The comparison could for example be done by considering a linear regression problem (e.g. <code>cars</code>) and/or a quadratic form and its corresponding formulation of solving a linear system of equations.</p>
 <hr />
-<p>TEORI TEORI TEORI</p>
+Lineære <em>conjugate gradient</em> er en iterativ metode til at løse et lineært ligningssystem
+<span class="math display">\[\begin{align*}
+Ax = b.
+\end{align*}\]</span>
+Dette svarer til at minimere følgende objektfunktion
+<span class="math display">\[\begin{align*}
+ f( x)=\frac{1}{2}{x}^\top A {x}-{b}^\top {x},  
+\end{align*}\]</span>
+idet
+<span class="math display">\[\begin{align*}
+    \nabla f( x) &amp;= \frac{1}{2}2A{x}-{b}\\
+    &amp;= A{x}-{b}.
+\end{align*}\]</span>
+Sættes gradienten lig nul, fås
+<span class="math display">\[\begin{align*}
+    A{x} = {b}.
+\end{align*}\]</span>
+Residualerne af det lineære system er givet ved
+<span class="math display">\[\begin{align*}
+    {r}({x})=\nabla f({x})=A{x}-{b}.
+\end{align*}\]</span>
+For at benyttes CG skal der bruges en mængde conjugate vektorer, <span class="math inline">\(\{p_0, p_1, \ldots, p_{n-1}\}\)</span>, det vil sige at der gælder <span class="math inline">\(p_i^\top A p_j = 0, \; \forall i \neq j\)</span>. Disse kan bestemmes på forskellige måder. Givet et startpunkt, <span class="math inline">\(x_0\)</span>, og en mængden af conjugate directions vektorer, er iterationerne givet ved
+<span class="math display">\[\begin{align*}
+    x_{k+1} = x_k + \alpha_k p_k,
+\end{align*}\]</span>
+hvor skridtlængden, <span class="math inline">\(\alpha_k\)</span>, er givet ved <span class="math inline">\(\text{argmin} (f(x_k+\alpha p_k))\)</span>. <span class="math inline">\(\alpha_k\)</span> kan eksplicit skrives som
+<span class="math display">\[\begin{align*}
+    \alpha_k = - \frac{r_k^\top p_k}{p^\top_k A P_k}.
+\end{align*}\]</span>
+En <em>“bilig”</em> metode til at vælge mængden af conjugate vektorer er ved brug af <em>conjugate gradiant</em>. Her benyttes kun den forrige conjugate vektor til at regne en ny conjugate vektor. I conjugate gradient er hvert <span class="math inline">\(p_k\)</span> valgt til at være en linearkombination af det negative residual og den forrige retning.
+<span class="math display">\[\begin{align*}
+    p_k = -r_k + \beta_k p_{k-1},
+\end{align*}\]</span>
+hvor
+<span class="math display">\[\begin{align*}
+    \beta_k = \frac{r_k^\top A p_{k-1}}{p_{k-1}^\top A p_{k-1}}.
+\end{align*}\]</span>
+<p>Det er muligt nemt, at optimere ovenstående, sådan at der er færre matrix-vektor produkter for hver iteration. Dette ses i følgende algoritme, hvor <span class="math inline">\(p_0\)</span> er valgt til at være steepest descent retningen.</p>
 <pre class="r"><code># Implementation af conjugate gradient
 MinimizeCG52 &lt;- function(x_k, A, b, tol, k_max) {
  r_k &lt;- A %*% x_k - b
- p_k &lt;- -r_k
+ p_k &lt;- - r_k
  k   &lt;- 0
- while (norm(r_k , type = &quot;2&quot;) &gt; tol &amp; k &lt;= k_max) { 
-   rTr     &lt;- t(r_k) %*% r_k
-   alpha_k &lt;- rTr / (t(p_k) %*% A %*% p_k)
+ rTr &lt;- t(r_k) %*% r_k
+ while (norm(r_k , type = &quot;2&quot;) &gt; tol &amp; k &lt; k_max) { 
+   rTr_old &lt;- rTr
+   alpha_k &lt;- rTr_old / (t(p_k) %*% A %*% p_k)
    x_k     &lt;- x_k + alpha_k[1] * p_k
-   r_old   &lt;- r_k
    r_k     &lt;- r_k + alpha_k[1] * A %*% p_k
-   beta_k  &lt;- rTr / (t(r_old) %*% r_old)
+   rTr     &lt;- t(r_k) %*% r_k
+   beta_k  &lt;- rTr / rTr_old
    p_k     &lt;- -r_k + beta_k[1] * p_k
    k       &lt;- k + 1
  }
  sol &lt;- list(par = x_k , iter = k)
  return(sol)
 }</code></pre>
-<p>Implementerer BFGS for at sammenligne med denne.</p>
+<p>Implementerer BFGS og Steepest Descent for at sammenligne med disse.</p>
 <pre class="r"><code># Implementation af backtracking
 backtracking_line_search &lt;- function(alpha, c, rho, x_k, p_k, g_k, f) {
   alpha_k &lt;- alpha
@@ -199,53 +237,76 @@ steepest_descent &lt;- function(f, g, x_k, alpha, c, rho, tol, k_max) {
     sol &lt;- list(par = x_k , func = f(x_k) , grad = g_k , iter = k)
     return(sol)
 }</code></pre>
-<p>Tester implementation af conjugate gradient på cars datasættet og sammenligner med BFGS og steepest descent.</p>
-<p>MERE FYLDSGØRENDE TEKST Der ønskes at lave en model af bremselængde som funktion af farten. Dette giver objektfunktionen <span class="math display">\[
-f(a, b) = \frac{1}{n} \sum_{i = 1}^n (m(s_i) - d_i)^2,
-\]</span></p>
+<p>Tester implementation af Conjugate Gradient på cars datasættet og sammenligner med BFGS og Steepest Descent.</p>
+<p>Der ønskes at lave en model af bremselængde som funktion af farten. Dette giver objektfunktionen <span class="math display">\[
+f(x_1, x_2) = \frac{1}{n} \sum_{i = 1}^n (m(s_i) - d_i)^2,
+\]</span> hvor <span class="math inline">\(s\)</span> er fart og <span class="math inline">\(d\)</span> er bremselængde og <span class="math inline">\(m(s) = x_1 + x_2 \cdot s\)</span>. Der ønskes at bestemme <span class="math inline">\(x_1\)</span> og <span class="math inline">\(x_2\)</span> således, at objektfunktionen, <span class="math inline">\(f\)</span> minimeres.</p>
 <pre class="r"><code>data(cars)
 
-# Objektfunktionen
-f &lt;- function(ab){
+# Objektfunktionen defineres.
+f &lt;- function(x){
   n &lt;- length(cars$dist)
   s &lt;- cars$speed
   d &lt;- cars$dist
-  return(1/n * sum((ab[1] + ab[2] * s - d)^2))
+  return(1/n * sum((x[1] + x[2] * s - d)^2))
 }
-# Gradienten
-g &lt;- function(ab){
+
+# Gradienten defineres.
+g &lt;- function(x){
   n &lt;- length(cars$speed)
   s &lt;- cars$speed
   d &lt;- cars$dist 
-  g_a &lt;- 1/n * sum(2 * (ab[1] + ab[2] * s - d) )
-  g_b &lt;- 1/n * sum(2 * (ab[1] + ab[2] * s - d) * s)
-  return(c(g_a,g_b))
+  g_x1 &lt;- 1/n * sum(2 * (x[1] + x[2] * s - d) )
+  g_x2 &lt;- 1/n * sum(2 * (x[1] + x[2] * s - d) * s)
+  return(c(g_x1,g_x2))
 }
 
-# Bestemmer designmatricen.
+# For at opnå et lineært liningssystem, opskrives designmatricen.
 X &lt;-  matrix(1, nrow = length(cars$speed), ncol=2)
 X[,2] &lt;- cars$speed
 
-# Laver det om til et OLS problem.
+# Opstiller udtrykkene for normalligningen til OLS problemmet.
 A &lt;- t(X) %*% X
 b &lt;- t(X) %*% cars$dist
 
 # Vil nu løse A x_k = b med de forskellige metoder. Vælger værdier til funktionerne
-x_k    &lt;- c(-5,10)
+x_k   &lt;- c(-5,10)
 alpha &lt;- 1    
-c &lt;- 1e-4
-tol &lt;- 1e-4
-rho &lt;- 0.5
+c     &lt;- 1e-4
+tol   &lt;- 1e-4
+rho   &lt;- 0.5
 k_max &lt;- 10000
 
 
-MinimizeCG52(x_k , A , b, tol, k_max)$iter</code></pre>
-<pre><code>## [1] 10001</code></pre>
-<pre class="r"><code>BFGS(f, g, x_k, alpha, c, rho, tol, k_max)$iter</code></pre>
-<pre><code>## [1] 9</code></pre>
-<pre class="r"><code>steepest_descent(f, g, x_k, alpha, c, rho, tol, k_max)$iter</code></pre>
-<pre><code>## [1] 2411</code></pre>
-<p>NOGET TEKST DER BESKRIVER HVAD DER SKER.</p>
+datCG   &lt;- MinimizeCG52(x_k , A , b, tol, k_max)
+datBFGS &lt;- BFGS(f, g, x_k, alpha, c, rho, tol, k_max)
+datSD   &lt;- steepest_descent(f, g, x_k, alpha, c, rho, tol, k_max)
+
+frame &lt;- data.frame(CG = c(datCG$iter,datCG$par) , BFGS = c(datBFGS$iter,datBFGS$par) ,
+           SD = c(datSD$iter,datSD$par))
+rownames(frame) &lt;- c(&quot;Iter&quot;,&quot;x_1&quot;,&quot;x_2&quot;); frame</code></pre>
+<pre><code>##              CG       BFGS         SD
+## Iter   2.000000   9.000000 2411.00000
+## x_1  -17.579095 -17.579095  -17.57863
+## x_2    3.932409   3.932409    3.93238</code></pre>
+<p>Det ses at, <em>CG</em> benytter to iterationer, hvilket er forventeligt, idet dimensionen af problemet er <span class="math inline">\(n = 2\)</span>. Dette er færre iterationer end de to andre metoder.</p>
+<p>For at teste tidsforbruget for de tre metoder, anvendes funktionen “microbenchmark”.</p>
+<pre class="r"><code>microbenchmark(
+  MinimizeCG52(x_k , A , b, tol, k_max),
+  BFGS(f, g, x_k, alpha, c, rho, tol, k_max),
+  steepest_descent(f, g, x_k, alpha, c, rho, tol, k_max),
+  times = 1 , unit = &quot;ms&quot;
+)</code></pre>
+<pre><code>## Unit: milliseconds
+##                                                    expr        min
+##                     MinimizeCG52(x_k, A, b, tol, k_max)   0.158585
+##              BFGS(f, g, x_k, alpha, c, rho, tol, k_max)   3.844910
+##  steepest_descent(f, g, x_k, alpha, c, rho, tol, k_max) 935.800625
+##          lq       mean     median         uq        max neval
+##    0.158585   0.158585   0.158585   0.158585   0.158585     1
+##    3.844910   3.844910   3.844910   3.844910   3.844910     1
+##  935.800625 935.800625 935.800625 935.800625 935.800625     1</code></pre>
+<p>Det ses, at <em>CG</em> er den klart hurtigste af de tre metoder</p>
 <hr />
 </div>
 <div id="exercise-2-non-linear-conjugate-gradient" class="section level1">
