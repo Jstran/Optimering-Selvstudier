@@ -136,11 +136,23 @@ legend(4,115,legend = "m(s) = a + bs" , col = "red" , lty = 1)
 ```
 
 
+***
+What is meant by *the best* straight line in relation to the objective function above?
 
-    * What is meant by *the best* straight line in relation to the objective function above?
+***
+
 Objektfunktionen er givet ved summen af de kvadrerede residualer ganget med 1/n, og den bedste rette linje opnås netop ved de koefficienter der minimerer denne sum.  
 
-    * Discuss different ways to determine the step sizes.
+***
+Discuss different ways to determine the step sizes.
+
+***
+    
+I stedet for at bruge Backtracking til at bestemme skridtlængden kunne der i stedet benyttes zoom. Denne metode ville formendelig gøre, at Steepest Descent konvergerede hurtigere, idet zoom vil gøre at skridtlængden overholder strong Wolf, og dermed også sikre at skridtlængderne ikke er for små, hvilket Backtracking ikke nødvendigvis gør.
+
+Udover zoom kan der også benyttes en fast skridtlængde. Dette vil dog gøre at Steepest Descent ikke nødvendigvis vil konvergere.
+
+
 ***
 3. Try with different ways to choose step sizes and illustrate it (including plotting the objective function and the iterates, $\{x_k\}_k$). 
     * (Technically, it may be easier to have an algorithm for each way of choosing step size.)
@@ -152,6 +164,9 @@ Objektfunktionen er givet ved summen af de kvadrerede residualer ganget med 1/n,
 Account for theoretical properties of the gradient descent.
 
 ***
+
+Dette ses af konturplottet hvor iterationerne for Steepest Descent er tegnet ind. Det er ikke så nemt at se på ovenstående plot, men i Steepest Descent vil søgningsretningen, $p_k$, stå ortogonalt på niveaukurverne i konturplottet.
+
 # Exercise 2: Stochastic gradient descent / incremental gradient descent
 
 In the gradient descent method, all observations are used in each step. If the dataset is really big it may be a problem.
@@ -171,7 +186,3 @@ Exercises:
     + Different ways to choose step sizes.
     + The total objective function with a discussion of how it differs from a similar plot from the gradient descent method.
     + Some iterates in a plot showing the data (e.g. `plot(dist ~ speed, cars)`).
-
-# Exercise 3: Be creative!
-
-Open exercise: try to be creative!
