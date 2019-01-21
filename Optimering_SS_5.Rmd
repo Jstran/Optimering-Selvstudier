@@ -60,7 +60,7 @@ Det er muligt nemt, at optimere ovenstående, sådan at der er færre matrix-vek
 # Implementation af conjugate gradient
 MinimizeCG52 <- function(x_k, A, b, tol, k_max) {
  r_k <- A %*% x_k - b
- p_k <- -r_k
+ p_k <- - r_k
  k   <- 0
  rTr <- t(r_k) %*% r_k
  while (norm(r_k , type = "2") > tol & k < k_max) { 
@@ -134,28 +134,28 @@ Tester implementation af Conjugate Gradient på cars datasættet og sammenligner
 
 Der ønskes at lave en model af bremselængde som funktion af farten. Dette giver objektfunktionen
 \[
-f(a, b) = \frac{1}{n} \sum_{i = 1}^n (m(s_i) - d_i)^2,
+f(x_1, x_2) = \frac{1}{n} \sum_{i = 1}^n (m(s_i) - d_i)^2,
 \]
-hvor $s$ er fart og $d$ er bremselængde og $m(s) = a + b \cdot s$. Der ønskes at bestemme $a$ og $b$ således, at objektfunktionen, $f$ minimeres.
+hvor $s$ er fart og $d$ er bremselængde og $m(s) = x_1 + x_2 \cdot s$. Der ønskes at bestemme $x_1$ og $x_2$ således, at objektfunktionen, $f$ minimeres.
 ```{r}
 data(cars)
 
 # Objektfunktionen defineres.
-f <- function(ab){
+f <- function(x){
   n <- length(cars$dist)
   s <- cars$speed
   d <- cars$dist
-  return(1/n * sum((ab[1] + ab[2] * s - d)^2))
+  return(1/n * sum((x[1] + x[2] * s - d)^2))
 }
 
 # Gradienten defineres.
-g <- function(ab){
+g <- function(x){
   n <- length(cars$speed)
   s <- cars$speed
   d <- cars$dist 
-  g_a <- 1/n * sum(2 * (ab[1] + ab[2] * s - d) )
-  g_b <- 1/n * sum(2 * (ab[1] + ab[2] * s - d) * s)
-  return(c(g_a,g_b))
+  g_x1 <- 1/n * sum(2 * (x[1] + x[2] * s - d) )
+  g_x2 <- 1/n * sum(2 * (x[1] + x[2] * s - d) * s)
+  return(c(g_x1,g_x2))
 }
 
 # For at opnå et lineært liningssystem, opskrives designmatricen.
@@ -179,15 +179,13 @@ datCG   <- MinimizeCG52(x_k , A , b, tol, k_max)
 datBFGS <- BFGS(f, g, x_k, alpha, c, rho, tol, k_max)
 datSD   <- steepest_descent(f, g, x_k, alpha, c, rho, tol, k_max)
 
-frame <- t(data.frame(CG = c(datCG$iter,datCG$par) , BFGS = c(datBFGS$iter,datBFGS$par) ,
-           SD = c(datSD$iter,datSD$par)))
-colnames(frame) <- c("Iter","a","b")
-frame
-
-
+frame <- data.frame(CG = c(datCG$iter,datCG$par) , BFGS = c(datBFGS$iter,datBFGS$par) ,
+           SD = c(datSD$iter,datSD$par))
+rownames(frame) <- c("Iter","x_1","x_2"); frame
 ```
-NOGET TEKST DER BESKRIVER HVAD DER SKER.
-Sammenligner tidsforbruget.
+Det ses at, *CG* benytter to iterationer, hvilket er forventeligt, idet dimensionen af problemet er $n = 2$. Dette er færre iterationer end de to andre metoder.
+
+For at teste tidsforbruget for de tre metoder, anvendes funktionen "microbenchmark".
 ```{r}
 microbenchmark(
   MinimizeCG52(x_k , A , b, tol, k_max),
@@ -196,7 +194,7 @@ microbenchmark(
   times = 1 , unit = "ms"
 )
 ```
-
+Det ses, at *CG* er den klart hurtigste af de tre metoder
 
 
 ***
