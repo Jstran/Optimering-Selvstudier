@@ -128,11 +128,11 @@ A <- t(X) %*% X
 b <- t(X) %*% cars$dist
 
 # Vil nu løse A x_k = b med de forskellige metoder. Vælger værdier til funktionerne
-x_k    <- c(-5,10)
+x_k   <- c(-5,10)
 alpha <- 1    
-c <- 1e-4
-tol <- 1e-4
-rho <- 0.5
+c     <- 1e-4
+tol   <- 1e-4
+rho   <- 0.5
 k_max <- 10000
 
 
@@ -147,7 +147,7 @@ microbenchmark(
   MinimizeCG52(x_k , A , b, tol, k_max),
   BFGS(f, g, x_k, alpha, c, rho, tol, k_max),
   steepest_descent(f, g, x_k, alpha, c, rho, tol, k_max),
-  times = 10
+  times = 10 , unit = "ms"
 )
 ```
 
