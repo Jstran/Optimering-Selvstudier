@@ -144,9 +144,9 @@ NOGET TEKST DER BESKRIVER HVAD DER SKER.
 Sammenligner tidsforbruget.
 ```{r}
 microbenchmark(
-  MinimizeCG52(x_k , A , b, tol, k_max)$iter,
-  BFGS(f, g, x_k, alpha, c, rho, tol, k_max)$iter,
-  steepest_descent(f, g, x_k, alpha, c, rho, tol, k_max)$iter,
+  MinimizeCG52(x_k , A , b, tol, k_max),
+  BFGS(f, g, x_k, alpha, c, rho, tol, k_max),
+  steepest_descent(f, g, x_k, alpha, c, rho, tol, k_max),
   times = 10
 )
 ```
