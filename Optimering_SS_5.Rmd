@@ -227,18 +227,28 @@ Yderligere gælder der for lineær *CG*, at den konvergerer efter højst $n$ ite
 \liminf_{k \to \infty} \| \nabla f_k \| = 0.
 \end{align*}
 
+
+Prøver ikke-lineær *GC* på funktionen
+\begin{align*}
+  f(x_1, x_2) = x_1^2 + \frac{1}{4}x_2^2 + 4(x_1 - x_2)^2 \sin(x_2)^2,
+\end{align*}
+hvor gradienten er givet ved
+\begin{align*}
+  \nabla f(x_1, x_2) = \begin{pmatrix} 2x_1 +8(x_1 - x_2) \sin(x_2)^2 \\ \frac{1}{2}x_2 - 8(x_1 - x_2)^2 + 4(x_1 - x_2)^2 \sin(2x_2)\end{pmatrix}
+\end{align*}
 ```{r}
-f = function(x) x[1]^2 + .25*x[2]^2 + 4*(x[1] - x[2])^2*sin(x[2])^2
+# Definerer funktionen.
+fn = function(x) x[1]^2 + .25*x[2]^2 + 4*(x[1] - x[2])^2*sin(x[2])^2
 
-# analytic derivatives
-g = function(x) c(2*x[1] + 8*(x[1] - x[2])*sin(x[2])^2, .5*x[2] - 8*(x[1] - x[2])*sin(x[2])^2 + 4*(x[1] - x[2])^2*sin(2*x[2]))
+# Definerer gradienten.
+gr = function(x) c(2*x[1] + 8*(x[1] - x[2])*sin(x[2])^2, .5*x[2] - 8*(x[1] - x[2])*sin(x[2])^2 + 4*(x[1] - x[2])^2*sin(2*x[2]))
 
+# Vælger startpunkt
+x_0 <- c(10,1)
 
-x_k <- c(10,1)
-
-optim(x_k, f, g, method = "CG")
+# Benytter optim funktionen på f.
+optim(x_0, fn, gr, method = "CG")
 ```
-
 
 ***
 
@@ -247,3 +257,5 @@ optim(x_k, f, g, method = "CG")
 When are conjugate gradient methods useful? How is the linear conjugate gradient different from for example solving the corresponding normal equations directly?
 
 ***
+
+Ved store problemer
