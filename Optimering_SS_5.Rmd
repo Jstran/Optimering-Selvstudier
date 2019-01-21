@@ -130,24 +130,25 @@ steepest_descent <- function(f, g, x_k, alpha, c, rho, tol, k_max) {
 }
 ```
 
-Tester implementation af conjugate gradient på cars datasættet og sammenligner med BFGS og steepest descent.
+Tester implementation af Conjugate Gradient på cars datasættet og sammenligner med BFGS og Steepest Descent.
 
-MERE FYLDSGØRENDE TEKST
-Der ønskes at lave en model af bremselængde som funktion af farten. Dette giver objektfunktionen 
+Der ønskes at lave en model af bremselængde som funktion af farten. Dette giver objektfunktionen
 \[
 f(a, b) = \frac{1}{n} \sum_{i = 1}^n (m(s_i) - d_i)^2,
 \]
+hvor $s$ er fart og $d$ er bremselængde og $m(s) = a + b \cdot s$. Der ønskes at bestemme $a$ og $b$ således, at objektfunktionen, $f$ minimeres.
 ```{r}
 data(cars)
 
-# Objektfunktionen
+# Objektfunktionen defineres.
 f <- function(ab){
   n <- length(cars$dist)
   s <- cars$speed
   d <- cars$dist
   return(1/n * sum((ab[1] + ab[2] * s - d)^2))
 }
-# Gradienten
+
+# Gradienten defineres.
 g <- function(ab){
   n <- length(cars$speed)
   s <- cars$speed
@@ -157,11 +158,11 @@ g <- function(ab){
   return(c(g_a,g_b))
 }
 
-# Bestemmer designmatricen.
+# For at opnå et lineært liningssystem, opskrives designmatricen.
 X <-  matrix(1, nrow = length(cars$speed), ncol=2)
 X[,2] <- cars$speed
 
-# Laver det om til et OLS problem.
+# Opstiller udtrykkene for normalligningen til OLS problemmet.
 A <- t(X) %*% X
 b <- t(X) %*% cars$dist
 
@@ -173,9 +174,17 @@ tol   <- 1e-4
 rho   <- 0.5
 k_max <- 10000
 
-MinimizeCG52(x_k , A , b, tol, k_max)$iter
-BFGS(f, g, x_k, alpha, c, rho, tol, k_max)$iter
-steepest_descent(f, g, x_k, alpha, c, rho, tol, k_max)$iter
+
+datCG   <- MinimizeCG52(x_k , A , b, tol, k_max)
+datBFGS <- BFGS(f, g, x_k, alpha, c, rho, tol, k_max)
+datSD   <- steepest_descent(f, g, x_k, alpha, c, rho, tol, k_max)
+
+frame <- t(data.frame(CG = c(datCG$iter,datCG$par) , BFGS = c(datBFGS$iter,datBFGS$par) ,
+           SD = c(datSD$iter,datSD$par)))
+colnames(frame) <- c("Iter","a","b")
+frame
+
+
 ```
 NOGET TEKST DER BESKRIVER HVAD DER SKER.
 Sammenligner tidsforbruget.
