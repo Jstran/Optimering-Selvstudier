@@ -192,7 +192,7 @@ microbenchmark(
   MinimizeCG52(x_k , A , b, tol, k_max),
   BFGS(f, g, x_k, alpha, c, rho, tol, k_max),
   steepest_descent(f, g, x_k, alpha, c, rho, tol, k_max),
-  times = 1 , unit = "ms"
+  times = 10 , unit = "ms"
 )
 ```
 Det ses, at *CG* er den klart hurtigste af de tre metoder.
@@ -258,5 +258,5 @@ When are conjugate gradient methods useful? How is the linear conjugate gradient
 
 ***
 
-Den lineære _conjugate gradient_ metode, er god til løse problemer for store $n$.   
-I den implementerede CG algortime, skal der udføres ét matrix-vektor produkt, $Ap_k$, to gange indreprodukt, $p_k^\top(Ap_k)$ og $r_k^\top r$, og der skal udføres tre vektorsummeringer. Alle disse beregninger er med floating point, hvilket gør at der kan indgå fejl i beregningerne. Det kan derfor for mindre problemer være bedre at benytte QR- eller SVD-faktorisering, idet disse metoder ikke er så følsomme over for fejl fra floating point. Dog skal man i faktoriseringernen ændre på koefficientmatricen løbende, hvilket ikke gør sig gældende i \textit{CG}, derfor er det stadig bedre at anvende CG på store problemer. 
+Den lineære _conjugate gradient_ metode, er god til løse problemer for store $n$.
+I den implementerede *CG* algortime, skal der udføres ét matrix-vektor produkt, $Ap_k$, to gange indreprodukt, $p_k^\top(Ap_k)$ og $r_k^\top r$, og der skal udføres tre vektorsummeringer. Alle disse beregninger er med floating point, hvilket gør at der kan indgå fejl i beregningerne. Det kan derfor for mindre problemer være bedre at benytte QR- eller SVD-faktorisering, idet disse metoder ikke er så følsomme over for fejl fra floating point. Dog skal man i faktoriseringernen ændre på koefficientmatricen løbende, hvilket ikke gør sig gældende i \textit{CG}, derfor er det stadig bedre at anvende CG på store problemer. 
