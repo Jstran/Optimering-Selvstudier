@@ -1,6 +1,8 @@
 ---
-title: "Optimisation: Self study 5 (Conjugate gradient)"
-output: html_document
+title: 'Optimisation: Self study 5 (Conjugate gradient)'
+output:
+  pdf_document: default
+  html_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -45,7 +47,7 @@ For at benyttes CG skal der bruges en mængde conjugate vektorer, $\{p_0, p_1, \
 \end{align*}
 hvor skridtlængden, $\alpha_k$, er givet ved $\text{argmin} (f(x_k+\alpha p_k))$. $\alpha_k$ kan eksplicit skrives som 
 \begin{align*}
-    \alpha_k = - \frac{r_k^\top p_k}{p^\top_k A P_k}.
+    \alpha_k = - \frac{r_k^\top r_k}{p^\top_k A P_k}.
 \end{align*}
 En *"bilig"* metode til at vælge mængden af conjugate vektorer er ved brug af *conjugate gradiant*. Her benyttes kun den forrige conjugate vektor til at regne en ny conjugate vektor. I conjugate gradient er hvert $p_k$ valgt til at være en linearkombination af det negative residual og den forrige retning.
 \begin{align*}
@@ -53,7 +55,7 @@ En *"bilig"* metode til at vælge mængden af conjugate vektorer er ved brug af 
 \end{align*}
 hvor 
 \begin{align*}
-    \beta_k = \frac{r_k^\top A p_{k-1}}{p_{k-1}^\top A p_{k-1}}.
+    \beta_k = \frac{r_{k+1}^\top r_{k+1}}{r_k^\top r_k}.
 \end{align*}
 Det er muligt nemt, at optimere ovenstående, sådan at der er færre matrix-vektor produkter for hver iteration. Dette ses i følgende algoritme, hvor $p_0$ er valgt til at være steepest descent retningen.
 ```{r}
@@ -106,7 +108,8 @@ BFGS <- function(f, g, x_k, alpha, c, rho, tol, k_max){
     s_k <- alpha_k * p_k
     y_k <- g(x_k) - g_k
     rho_k <- 1 / (t(y_k) %*% s_k)[1]
-    H_k <- (I_n - rho_k*s_k%*%t(y_k))%*%H_k%*%(I_n - rho_k*y_k%*%t(s_k)) + rho_k*s_k%*%t(s_k)
+    H_k <- (I_n - rho_k*s_k%*%t(y_k))%*%H_k%*%(I_n - rho_k*y_k%*%t(s_k)) +
+      rho_k*s_k%*%t(s_k)
     k <- k + 1
   }
   sol <- list(par = x_k , func = f(x_k) , grad = g_k , iter = k , inv_hess = H_k)
@@ -196,6 +199,7 @@ microbenchmark(
 )
 ```
 Det ses, at *CG* er den klart hurtigste af de tre metoder.
+Kan gøres endnu hurtigere ved preconditioning.
 
 ***
 # Exercise 2: Non-linear conjugate gradient
@@ -241,7 +245,8 @@ hvor gradienten er givet ved
 fn = function(x) x[1]^2 + .25*x[2]^2 + 4*(x[1] - x[2])^2*sin(x[2])^2
 
 # Definerer gradienten.
-gr = function(x) c(2*x[1] + 8*(x[1] - x[2])*sin(x[2])^2, .5*x[2] - 8*(x[1] - x[2])*sin(x[2])^2 + 4*(x[1] - x[2])^2*sin(2*x[2]))
+gr = function(x) c(2*x[1] + 8*(x[1] - x[2])*sin(x[2])^2, .5*x[2] - 8*(x[1] 
+                   -x[2])*sin(x[2])^2 + 4*(x[1] - x[2])^2*sin(2*x[2]))
 
 # Vælger startpunkt
 x_0 <- c(10,1)
