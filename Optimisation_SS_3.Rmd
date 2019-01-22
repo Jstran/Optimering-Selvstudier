@@ -246,17 +246,19 @@ B <- Hess(c(1,1))
 
 # Afstanden indgang for indgang mellem de inverterede hessematricer fra 
 # metoderne og den eksakte inverterede hessematrice.
-H
-abs(HDFP  -     H)
-abs(HBFGS -     H)
-abs(HBFGS_620 - H)
+DFP_errH     <- norm(HDFP  -     H, type = "F")
+BFGS_errH    <- norm(HBFGS -     H, type = "F")
+BFGS620_errH <- norm(HBFGS_620 - H, type = "F")
 
 # Afstanden indgang for indgang mellem hessematricerne fra metoderne og 
 # den eksakte hessematrice.
-B
-abs(BDFP  -     B)
-abs(BBFGS -     B)
-abs(BBFGS_620 - B)
+DFP_errB     <- norm(BDFP  -     B, type = "F")
+BFGS_errB    <- norm(BBFGS -     B, type = "F")
+BFGS620_errB <- norm(BBFGS_620 - B, type = "F")
+
+frame <- data.frame(DFP = c(DFP_errH,DFP_errB) , BFGS = c(BFGS_errH,BFGS_errB) ,
+           BFGS_620 = c(BFGS620_errH,BFGS620_errB))
+rownames(frame) <- c("H","B") ; frame
 ```
 
 ***
