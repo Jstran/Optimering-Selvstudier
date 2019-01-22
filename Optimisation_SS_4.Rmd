@@ -190,7 +190,6 @@ Da kan $\|J\boldsymbol{x}-\boldsymbol{y}\|^2$ minimeres ved at tvinge første ud
 \begin{align*}
     \boldsymbol{x}^* = PR^{-1} Q_1^\top \boldsymbol{y}.
 \end{align*}
-
 \begin{align*}
   z = R^{-1} Q_1^\top \boldsymbol{y}.
 \end{align*}
@@ -210,7 +209,7 @@ QR_cars <- QRfun(J)
 # Minimizeren bestemmes.
 z <- backsolve(QR_cars$R, t(QR_cars$Q1) %*% y)
 P <- diag(dim(J)[2])
-x_qr <- P %*% z
+x_qr <- P %*% z ; x_qr
 ```
 
 **SVD-Metoden**
