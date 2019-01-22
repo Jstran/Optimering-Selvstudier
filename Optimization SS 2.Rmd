@@ -321,35 +321,6 @@ rownames(frame) <- c("Function","Gradient") ; frame
 In a gradient descent problem (e.g. Rosenbrock's function or best straight line for `cars` dataset), compare the use of exact and numerical derivatives and discuss it. The comparisons can include e.g. illustrations or summary measures (number of iterations, amount of time spent, accuracy of solution and possibly other aspects).
 
 ***
-
-Remember that in `R`, there are many ways of registering amount of time spent. For very fast operations, you can use:
-
-```{r}
-library(microbenchmark)
-X <- model.matrix(~ speed, cars)
-microbenchmark(lm(dist ~ speed, cars), 
-               lm.fit(X, cars$dist),
-               lm.fit(model.matrix(~ speed, cars), cars$dist), 
-               times = 100)
-```
-
-For slower operations, you can do it manually:
-
-```{r}
-time_begin <- proc.time()
-
-for (i in 1:1000) {
-  lm(dist ~ speed, cars)
-}
-
-time_end <- proc.time()
-time_duration <- time_end - time_begin
-time_duration_secs <- time_duration["user.self"]
-time_duration_secs
-```
-
-
-
 ```{r}
 
 f <- function(x) (5*x[1]^2 + x[2]^2)/2
