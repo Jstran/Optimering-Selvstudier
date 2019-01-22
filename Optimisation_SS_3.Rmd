@@ -163,33 +163,6 @@ $$\nabla f(x_1,x_2) = \begin{pmatrix}2 (x_2 - 1) - 400 x_1 (x_2 -x_1^2) \\ 200 (
 f = function(x) 100*(x[2] - x[1]^2)^2 + (1 - x[1])^2
 g = function(x) c(2*(x[1] - 1) - 400*x[1]*(x[2] - x[1]^2), 200*(x[2] - x[1]^2))
 
-
-# Vælger værdier
-x_k <- c(1,2) # Valgt startværdi
-alpha <- 1    
-c <- 1e-4
-tol <- 1e-4
-rho <- 0.5
-k_max <- 10000
-```
-
-
-Anvender metoderne på Rosenbrock funktionen som har minimum i $(1,1)$
-```{r}
-fDFP      <- DFP     (f, g, x_k, alpha, c, rho, tol, k_max)
-fBFGS     <- BFGS    (f, g, x_k, alpha, c, rho, tol, k_max)
-fBFGS_620 <- BFGS_620(f, g, x_k, alpha, c, rho, tol, k_max)
-fBFGSopti <- optim   (x_k, f, g, method = "BFGS")
-fNM       <- optim   (x_k, f, g, method = "Nelder-Mead")
-
-frame <- data.frame(DFP = c(fDFP$iter,fDFP$par) , BFGS = c(fBFGS$iter,fBFGS$par), 
-           BFGS_620 = c(fBFGS_620$iter,fBFGS_620$par) , 
-           BFGSopt = c(NA,fBFGSopti$par) ,  NM = c(NA,fNM$par))
-rownames(frame) <- c("Iter","x1","x2") ; frame 
-```
-
-Sammenligner tidsforbruget for de enkelte metoder.
-```{r}
 # Implementerer Steepest descent
 steepest_descent <- function(f, g, x_k, alpha, c, rho, tol, k_max) {
   k <- 0
@@ -206,6 +179,34 @@ steepest_descent <- function(f, g, x_k, alpha, c, rho, tol, k_max) {
 	return(sol)
 }
 
+# Vælger værdier
+x_k <- c(1,2) # Valgt startværdi
+alpha <- 1    
+c <- 1e-4
+tol <- 1e-4
+rho <- 0.5
+k_max <- 10000
+```
+
+
+Anvender metoderne på Rosenbrock funktionen som har minimum i $(1,1)$
+```{r}
+SD <- steepest_descent(f, g, x_k, alpha, c, rho, tol, k_max)
+fDFP      <- DFP     (f, g, x_k, alpha, c, rho, tol, k_max)
+fBFGS     <- BFGS    (f, g, x_k, alpha, c, rho, tol, k_max)
+fBFGS_620 <- BFGS_620(f, g, x_k, alpha, c, rho, tol, k_max)
+fBFGSopti <- optim   (x_k, f, g, method = "BFGS")
+fNM       <- optim   (x_k, f, g, method = "Nelder-Mead")
+
+frame <- data.frame(DFP = c(fDFP$iter,fDFP$par) , BFGS = c(fBFGS$iter,fBFGS$par), 
+           BFGS_620 = c(fBFGS_620$iter,fBFGS_620$par) , 
+           BFGSopt = c(NA,fBFGSopti$par) ,  NM = c(NA,fNM$par) ,
+           SD = c(SD$iter,SD$par))
+rownames(frame) <- c("Iter","x1","x2") ; frame 
+```
+
+Sammenligner tidsforbruget for de enkelte metoder.
+```{r}
 # Bruger funktionen microbenchmark til at sammenligne tidsforbeuget. 
 microbenchmark(
 optim(x_k, f,    method = "Nelder-Mead") , 
