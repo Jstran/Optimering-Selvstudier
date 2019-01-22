@@ -143,10 +143,17 @@ Metoderne kræver følgende antal funktionsevalueringer
 
 **Praktisk eksempel for sammenligning af metoderne**
 
+Anvender det forskellige metoder på funktionen
+\begin{align*}
+f(x)=\cos(\cos(x)\sin(x)).
+\end{align*}
+
 ```{r}
+# Vælger værdier
 eps <- .Machine$double.eps
 x <- pi/3
 
+# Definerer funktioner 
 f        <- function(x){cos(cos(x)*sin(x))}
 df.exact <- function(x){-cos(2*x)*sin( cos(x)*sin(x) )}
 FD       <- function(x,h){(f(x+h) - f(x))/h}
@@ -154,6 +161,7 @@ CD       <- function(x,h){(f(x+h) - f(x-h))/(2*h)}
 ExpCD    <- function(x,h){(8*( f(x+h) - f(x-h) )
                           - ( f(x+2*h) - f(x-2*h) ))/(12*h)}
 
+# For-løkke til evaluering af metoderne
 FD_val <- CD_val <- ExpCD_val <- h <- numeric(16)
 for (i in seq(1,16, length.out = 16)){
 h[i] <- 10^{-i}
@@ -162,10 +170,12 @@ CD_val[i]    <- CD(x,h[i])
 ExpCD_val[i] <- ExpCD(x,h[i])
 }
 
+# Afvigelse mellem approksimater og den eksakte afledte.
 FD_err    <- abs(FD_val - df.exact(x))
 CD_err    <- abs(CD_val - df.exact(x))
 ExpCD_err <- abs(ExpCD_val - df.exact(x))
 
+# Potter afvigelser mod h værdier.
 plot(log10(h) , log10( ExpCD_err ) , 
      type = "l" , col = "green" , xlab = "log10(h)" , ylab="log10(Afvigelse)")
 lines(log10(h) , log10( CD_err ) , col = "blue")
