@@ -1,6 +1,8 @@
 ---
-title: "Optimisation: Self study 1"
-output: html_document
+title: 'Optimisation: Self study 1'
+output:
+  pdf_document: default
+  html_document: default
 ---
 
 ```{r setup, include=FALSE}

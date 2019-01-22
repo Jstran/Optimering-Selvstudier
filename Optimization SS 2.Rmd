@@ -1,10 +1,9 @@
 ---
 title: 'Optimisation: Self study 2'
 output:
-  html_document: default
   pdf_document: default
+  html_document: default
 ---
-\usepackage{amsmath}
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library("microbenchmark")
@@ -310,7 +309,8 @@ h <- 10^-5
 # Definerer xAD til at være et AD_num.
 xAD <- create_ADnum(x)
 
-frame <- data.frame(Exact = c(f(x),g_exact(x)) , AD = c(f(xAD)$val,f(xAD)$deriv) , FD = c(NA,FD(x,h)) , CD = c(NA,CD(x,h)) , ExpCD = c(NA,ExpCD(x,h)) )
+frame <- data.frame(Exact = c(f(x),g_exact(x)) , AD = c(f(xAD)$val,f(xAD)$deriv) ,
+FD = c(NA,FD(x,h)) , CD = c(NA,CD(x,h)) , ExpCD = c(NA,ExpCD(x,h)) )
 rownames(frame) <- c("Function","Gradient") ; frame
 
 ```
@@ -400,7 +400,8 @@ steepest_descent <- function(f, x_k, alpha, c, rho, tol, k_max,FUN) {
 		
 	}
 # Information om steepest descent.
-	printfln("k = %d \t x_k = (%6.3f , %6.3f) \t f_k = %.2f \t g_k = (%8.3f , %8.3f) \t ", k, x_k[1] , x_k[2], f(x_k), g_k[1] , g_k[2])
+	printfln("k = %d \t x_k = (%6.3f , %6.3f) \t f_k = %.2f \t g_k = (%8.3f , %8.3f) \t ", 
+  k, x_k[1] , x_k[2], f(x_k), g_k[1] , g_k[2])
 	
 	
 	return(x_k)

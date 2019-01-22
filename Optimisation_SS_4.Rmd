@@ -2,7 +2,6 @@
 title: "Optimisation: Self study 4 -- Least squares"
 output: html_document
 ---
-\usepackage{amsmath}
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(matrixcalc)

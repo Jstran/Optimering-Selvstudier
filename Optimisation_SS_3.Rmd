@@ -1,6 +1,8 @@
 ---
-title: "Optimisation: Self study 3 -- Numerical differentiation"
-output: html_document
+title: 'Optimisation: Self study 3 -- Quasi-Newton DFO'
+output:
+  pdf_document: default
+  html_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -89,7 +91,8 @@ BFGS <- function(f, g, x_k, alpha, c, rho, tol, k_max){
     s_k <- alpha_k * p_k
     y_k <- g(x_k) - g_k
     rho_k <- 1 / (t(y_k) %*% s_k)[1]
-    H_k <- (I_n - rho_k*s_k%*%t(y_k))%*%H_k%*%(I_n - rho_k*y_k%*%t(s_k)) + rho_k*s_k%*%t(s_k)
+    H_k <- (I_n - rho_k*s_k%*%t(y_k))%*%H_k%*%(I_n - rho_k*y_k%*%t(s_k)) +
+      rho_k*s_k%*%t(s_k)
     k <- k + 1
   }
   sol <- list(par = x_k , func = f(x_k) , grad = g_k , iter = k , inv_hess = H_k)
@@ -116,7 +119,8 @@ BFGS_620 <- function(f, g, x_k, alpha, c, rho, tol, k_max){
     s_k <- alpha_k * p_k
     y_k <- g(x_k) - g_k
     rho_k <- 1 / (t(y_k) %*% s_k)[1]
-    H_k <- (I_n - rho_k*s_k%*%t(y_k))%*%H_k%*%(I_n - rho_k*y_k%*%t(s_k)) + rho_k*s_k%*%t(s_k)
+    H_k <- (I_n - rho_k*s_k%*%t(y_k))%*%H_k%*%(I_n - rho_k*y_k%*%t(s_k)) +
+      rho_k*s_k%*%t(s_k)
     k <- k + 1
   }
 sol <- list(par = x_k , func = f(x_k) , grad = g_k , iter = k , inv_hess = H_k)
@@ -136,7 +140,8 @@ DFP <- function(f, g, x_k, alpha, c, rho, tol, k_max){
    x_k <- x_k + alpha_k * p_k
     s_k <- alpha_k * p_k
     y_k <- g(x_k) - g_k
-    H_k <- H_k - (H_k%*%y_k%*%t(y_k)%*%H_k)/(t(y_k)%*%H_k%*%y_k)[1] + (s_k%*%t(s_k))/(t(y_k)%*%s_k)[1]
+    H_k <- H_k - (H_k%*%y_k%*%t(y_k)%*%H_k)/(t(y_k)%*%H_k%*%y_k)[1] +
+      (s_k%*%t(s_k))/(t(y_k)%*%s_k)[1]
     k <- k + 1
   }
   sol <- list(par = x_k , func = f(x_k) , grad = g_k , iter = k , inv_hess = H_k)
@@ -171,21 +176,16 @@ k_max <- 10000
 
 Anvender metoderne på Rosenbrock funktionen som har minimum i $(1,1)$
 ```{r}
-DFP     (f, g, x_k, alpha, c, rho, tol, k_max)$par
-BFGS    (f, g, x_k, alpha, c, rho, tol, k_max)$par
-BFGS_620(f, g, x_k, alpha, c, rho, tol, k_max)$par
-optim   (x_k, f, g, method = "BFGS")$par
-optim   (x_k, f, g, method = "Nelder-Mead")$par
-```
+fDFP      <- DFP     (f, g, x_k, alpha, c, rho, tol, k_max)
+fBFGS     <- BFGS    (f, g, x_k, alpha, c, rho, tol, k_max)
+fBFGS_620 <- BFGS_620(f, g, x_k, alpha, c, rho, tol, k_max)
+fBFGSopti <- optim   (x_k, f, g, method = "BFGS")
+fNM       <- optim   (x_k, f, g, method = "Nelder-Mead")
 
-Sammenligner antal iterationer de forskellige metoder bruger.
-```{r}
-DFP     (f, g, x_k, alpha, c, rho, tol, k_max)$iter
-BFGS    (f, g, x_k, alpha, c, rho, tol, k_max)$iter
-BFGS_620(f, g, x_k, alpha, c, rho, tol, k_max)$iter
-optim   (x_k, f, g, method = "BFGS")$counts
-optim   (x_k, f, g, method = "Nelder-Mead")$counts
-
+frame <- data.frame(DFP = c(fDFP$iter,fDFP$par) , BFGS = c(fBFGS$iter,fBFGS$par), 
+           BFGS_620 = c(fBFGS_620$iter,fBFGS_620$par) , 
+           BFGSopt = c(NA,fBFGSopti$par) ,  NM = c(NA,fNM$par))
+rownames(frame) <- c("Iter","x1","x2") ; frame 
 ```
 
 Sammenligner tidsforbruget for de enkelte metoder.
@@ -214,7 +214,7 @@ BFGS(f, g, x_k, alpha, c, rho, tol, k_max) ,
 BFGS_620(f, g, x_k, alpha, c, rho, tol, k_max) ,  
 DFP(f, g, x_k, alpha, c, rho, tol, k_max) ,
 steepest_descent(f, g, x_k, alpha, c, rho, tol, k_max) ,  
-times = 100
+times = 10
 )
 ```
 ***
@@ -230,25 +230,29 @@ Investigate (plot, print, ...) the approximations of the Hessian ($B_{k}^{BFGS}$
 Hess = function(x) rbind(c(1200*x[1]^2 - 400*x[2] + 2, -400*x[1]), c(-400*x[1], 200))
 
 
-# Definerer de inverterede hessematricer for den sidste iteration for de forskellige metoder, samt den inverse af den eksakte hessematrice.
+# Definerer de inverterede hessematricer for den sidste iteration for de
+# forskellige metoder, samt den inverse af den eksakte hessematrice.
 HDFP      <- DFP     (f, g, x_k, alpha, c, rho, tol, k_max)$inv_hess
 HBFGS     <- BFGS    (f, g, x_k, alpha, c, rho, tol, k_max)$inv_hess
 HBFGS_620 <- BFGS_620(f, g, x_k, alpha, c, rho, tol, k_max)$inv_hess
 H <- solve(Hess(c(1,1)))
 
-# Definerer hessematricerne for den sidste iteration for de forskellige metoder, samt den eksakte hessematrice.
+# Definerer hessematricerne for den sidste iteration for de 
+# forskellige metoder, samt den eksakte hessematrice.
 BDFP      <- solve(DFP     (f, g, x_k, alpha, c, rho, tol, k_max)$inv_hess)
 BBFGS     <- solve(BFGS    (f, g, x_k, alpha, c, rho, tol, k_max)$inv_hess)
 BBFGS_620 <- solve(BFGS_620(f, g, x_k, alpha, c, rho, tol, k_max)$inv_hess)
 B <- Hess(c(1,1))
 
-# Afstanden indgang for indgang mellem de inverterede hessematricer fra metoderne og den eksakte inverterede hessematrice.
+# Afstanden indgang for indgang mellem de inverterede hessematricer fra 
+# metoderne og den eksakte inverterede hessematrice.
 H
 abs(HDFP  -     H)
 abs(HBFGS -     H)
 abs(HBFGS_620 - H)
 
-# Afstanden indgang for indgang mellem hessematricerne fra metoderne og den eksakte hessematrice.
+# Afstanden indgang for indgang mellem hessematricerne fra metoderne og 
+# den eksakte hessematrice.
 B
 abs(BDFP  -     B)
 abs(BBFGS -     B)
@@ -282,7 +286,8 @@ BFGS_fejl <- function(f, g, x_k, alpha, c, rho, tol, k_max){
     if(k == 3){
       H_k <- matrix(c(-800, -8, 90, -11), nrow = 2)}
     else {
-      H_k <- (I_n - rho_k*s_k%*%t(y_k))%*%H_k%*%(I_n - rho_k*y_k%*%t(s_k)) + rho_k*s_k%*%t(s_k)}
+      H_k <- (I_n - rho_k*s_k%*%t(y_k))%*%H_k%*%(I_n - rho_k*y_k%*%t(s_k)) +
+        rho_k*s_k%*%t(s_k)}
   
     k <- k + 1
   }
@@ -306,7 +311,8 @@ DFP_fejl <- function(f, g, x_k, alpha, c, rho, tol, k_max){
     if(k == 20){
       H_k <- matrix(c(800, -10, 0, 11), nrow = 2)}
     else {
-    H_k <- H_k - (H_k%*%y_k%*%t(y_k)%*%H_k)/(t(y_k)%*%H_k%*%y_k)[1] + (s_k%*%t(s_k))/(t(y_k)%*%s_k)[1]}
+    H_k <- H_k - (H_k%*%y_k%*%t(y_k)%*%H_k)/(t(y_k)%*%H_k%*%y_k)[1] +
+      (s_k%*%t(s_k))/(t(y_k)%*%s_k)[1]}
     k <- k + 1
   }
   sol <- list(par = x_k , func = f(x_k) , grad = g_k , iter = k , inv_hess = H_k)
@@ -324,7 +330,8 @@ Newton <- function(f, g, x_k, alpha, c, rho, tol, k_max) {
 		x_k <- x_k + alpha_k * p_k
 		k <- k + 1
 	} 
-	sol <- list(par = x_k , func = f(x_k) , grad = g_k , iter = k, inv_hess = solve(Hess(x_k)))
+	sol <- list(par = x_k , func = f(x_k) , grad = g_k , iter = k, 
+	            inv_hess = solve(Hess(x_k)))
 	return(sol)
 }
 
@@ -356,6 +363,6 @@ BFGS_fejl    (f, g, x_k, alpha, c, rho, tol, k_max),
 DFP          (f, g, x_k, alpha, c, rho, tol, k_max),
 DFP_fejl     (f, g, x_k, alpha, c, rho, tol, k_max),
 Newton       (f, g, x_k, alpha, c, rho, tol, k_max),
-times = 100
+times = 10
 )
 ```
