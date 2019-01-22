@@ -1,8 +1,8 @@
 ---
 title: 'Optimisation: Self study 4 -- Least squares'
 output:
-  pdf_document: default
   html_document: default
+  pdf_document: default
 ---
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
@@ -273,8 +273,10 @@ Can you solve this optimisation problem in other ways than by Gauss-Newton/Leven
 
 ***
 
+
 Der ønskes at lave regression på USPop.
 ```{r}
+# Plotter USPop datasæt med lm regressionslinje
 plot(population ~ year, data=USPop, main="(a)")
 abline(lm(population ~ year, data=USPop))
 ```
@@ -290,7 +292,7 @@ I modsætning til lineære least-square algortimer, kræver de fleste ikke-line�
     &\Updownarrow\\
     \log\left(\frac{y/\theta_1}{1-y/\theta_1}\right) &\approx \theta_2+\theta_3x
 \end{align*}
-Hvis der vælges en startværdi for $\theta_1$ kan $\theta_2$ og $\theta_3$ bestemmes ud fra OLS.
+Hvis der vælges en startværdi for $\theta_1$ kan $\theta_2$ og $\theta_3$ bestemmes ud fra OLS. 
 ```{r}
 # Funktion til at bestemme startværdier.
 self_start <- function(y, x){
@@ -314,6 +316,29 @@ x <- USPop$year
 
 start_theta <- self_start(y, x); start_theta
 
+```
+**Gauss-Newton metoden**
+
+Kan ses som en modificeret Newton metode med line search. Gauss-Newton for ikke-lineære least square problemer bygger på at approksimationen af hessematricen for objektfunktionen er givet ved
+
+\begin{align*}
+\nabla^2 f_k  \approx J_k^\top J_k.
+\end{align*}
+
+Dette meføre at man i Gauss-Newton gerne løse 
+
+\begin{align*}
+J_k^\top J_k \boldsymbol{p}_k^{GN} = -J_k\boldsymbold{r}_k,
+\end{align*}
+for at opnå søgningsretningen $\boldsymbol{p}_k^{GN}$
+
+Ud fra ligheden mellem normalligningen fra det lineære least square problem og ovenstående Gauss-Newton ligning haves fordelen, at $p_k^{GN}$ kan løses som det lineære least-square problem
+\begin{align*}
+\min_p \frac{1}{2} \|J_k \boldsymbold p + \boldsymbol{r}_k\|^2.
+\end{align*}
+
+Anvender **Gauss-Newton** og **Levenberg-Marquardt** på USPop datamængden.
+```{R}
 # Gauss-Newton.
 pop.mod.GN <- nls(population ~ theta1/(1 + exp(-(theta2 + theta3*year))), 
                   start=start_theta, data=USPop)
