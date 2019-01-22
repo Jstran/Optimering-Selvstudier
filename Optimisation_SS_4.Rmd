@@ -1,6 +1,8 @@
 ---
-title: "Optimisation: Self study 4 -- Least squares"
-output: html_document
+title: 'Optimisation: Self study 4 -- Least squares'
+output:
+  pdf_document: default
+  html_document: default
 ---
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
@@ -32,7 +34,7 @@ Objektfunktion skrevet på vektorform er
   \label{numeriskresid}
 \end{align}
 hvor $\boldsymbol{r}(\boldsymbol x) = (r_1(\boldsymbol x),\ldots,r_m(\boldsymbol x))^\top$.
-
+Jacobimatrien for $f(x)$ er givet ved
 \begin{align*}
 J(\boldsymbol x) = 
 \begin{bmatrix} 
@@ -107,7 +109,7 @@ Der skal nu løses $A\boldsymbol x=\boldsymbol b$. Dette gøres ved brug af Chol
 
 ```{r}
 CholAlg <- function(A){
-if(is.positive.definite(A)){ # Tjekker dog ikke om den der symetrisk (kommer fra matrixcalc)
+if(is.positive.definite(A)){ # Tjekker dog ikke om den der symetrisk 
   n <- dim(A)[1]
   L <- matrix(0, nrow = n, ncol = n)
   for (i in 1:n) {
@@ -131,11 +133,14 @@ Nu kan $L$ findes, sådan at $A = LL^\top$. (Bemærk: $CholAlg(A) = L^\top$ som 
 ```{r}
 L <- t(CholAlg(A))
 ```
+\[
+LL^\top x = b
+\]
 Finder $\boldsymbol z$ ud fra $L\boldsymbol z=\boldsymbol b$. Da $L$ er en nedre trekantsmatrix, vil der ved brug af forwardsolving skulle løses $n$ lineære ligninger med én ubekendt.
 ```{r}
 z <- forwardsolve(L,b)
 ```
-Finder nu $\boldsymbol x$ udfra $L^\top \boldsymbol x=\boldsymbol z$. Da $L^\top$ er en nedre trekantsmatrix, vil der ved brug af backwardsolving skulle løses $n$ lineære ligninger med én ubekendt.
+Finder nu $\boldsymbol x$ udfra $L^\top \boldsymbol x=\boldsymbol z$. Da $L^\top$ er en øvre trekantsmatrix, vil der ved brug af backwardsolving skulle løses $n$ lineære ligninger med én ubekendt.
 ```{r}
 x_chol <- backsolve(t(L), z)
 ```
@@ -178,12 +183,16 @@ hvor
 
 Der haves at
 \begin{align*}
-\|J\boldsymbol{x}-\boldsymbol{y}\| 
+\|J\boldsymbol{x}-\boldsymbol{y}\|^2 
      &=  \left\|R(P^\top\boldsymbol{x})-Q_1^\top\boldsymbol{y}\right\|^2 + \left\|Q_2^\top\boldsymbol{y}\right\|^2.\tag{10.18}
 \end{align*}
-Da kan $\|J\boldsymbol{x}-\boldsymbol{y}\|$ minimeres ved at tvinge første udtryk mod nul, og altså opnås
+Da kan $\|J\boldsymbol{x}-\boldsymbol{y}\|^2$ minimeres ved at tvinge første udtryk mod nul, og altså opnås
 \begin{align*}
     \boldsymbol{x}^* = PR^{-1} Q_1^\top \boldsymbol{y}.
+\end{align*}
+
+\begin{align*}
+  z = R^{-1} Q_1^\top \boldsymbol{y}.
 \end{align*}
 Dette gøres i praksis ved at løse $Rz=Q_1^\top\boldsymbol{y}$, for derefter at permutere komponenterne af $\boldsymbol{z}$, for at opnå $\boldsymbol{x}^*=P\boldsymbol{z}$.
 ```{r}
@@ -288,12 +297,14 @@ Hvis der vælges en startværdi for $\theta_1$ kan $\theta_2$ og $\theta_3$ best
 self_start <- function(y, x){
   theta1 <- max(y) + 1
   
-  mod <- summary(lm(logit(y/theta1) ~ x)) # Bruger lm til at estimere theta2 og theta3 ud fra.
+  # Bruger lm til at estimere theta2 og theta3 ud fra.
+  mod <- summary(lm(logit(y/theta1) ~ x)) 
 
   theta2 <- mod$coefficients[1,1]
   theta3 <- mod$coefficients[2,1]
 
-  start_theta <- list(theta1 = theta1, theta2 = theta2 , theta3 = theta3) # De estimerede thetaer.
+  # De estimerede thetaer.
+  start_theta <- list(theta1 = theta1, theta2 = theta2 , theta3 = theta3) 
 
   return(start_theta)
 }
@@ -305,12 +316,14 @@ x <- USPop$year
 start_theta <- self_start(y, x); start_theta
 
 # Gauss-Newton.
-pop.mod.GN <- nls(population ~ theta1/(1 + exp(-(theta2 + theta3*year))), start=start_theta, data=USPop)
+pop.mod.GN <- nls(population ~ theta1/(1 + exp(-(theta2 + theta3*year))), 
+                  start=start_theta, data=USPop)
 
 summary(pop.mod.GN)
 
 # Levenberg-Marquardt.
-pop.mod.LM <- nlsLM(population ~ theta1/(1 + exp(-(theta2 + theta3*year))), start=start_theta, data=USPop)
+pop.mod.LM <- nlsLM(population ~ theta1/(1 + exp(-(theta2 + theta3*year))), 
+                    start=start_theta, data=USPop)
 
 summary(pop.mod.LM)
 ```

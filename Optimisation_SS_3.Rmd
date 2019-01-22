@@ -1,8 +1,8 @@
 ---
 title: 'Optimisation: Self study 3 -- Quasi-Newton DFO'
 output:
-  html_document: default
   pdf_document: default
+  html_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -57,19 +57,18 @@ Inverteret formel\
 \[
     H_{k+1} = (I -\rho_k y_k s_k^\top) H_k (I -\rho_k s_k y_k^\top) + \rho_k y_k y_k^\top.\tag{BFGS}
 \]
+Det er muligt at opdatere BFGS ved efter første skridt er udført at sætte
+\[ 
+   H_0 = \frac{y_k^\top s_k}{y_k^\top y_k} I_n
+\]
+før man opdatere til $H_1$. Dette skulle gøre størrelsen af den $H_0$ tættere på den sande inverterede hessematrice. 
  
 **SR1** opdateringsformel\
 \[
     H_{k+1} = H_k + \frac{(s_k - H_ky_k) (s_k-H_ky_k)^\top}{(s_k - H_ky_k)^\top y_k}\tag{SR1}
 \]
- 
-Det er muligt at opdatere BFGS ved efter første skridt er udført at sætte
-\[ 
-   H_0 = \frac{y_k^\top s_k}{y_k^\top y_k} I_n
-\]
-før man opdatere til $H_1$. Dette skulle gøre størrelsen af den $H_0$ tættere på den sande inverterede hessematrice.
 
-BFGS og DFP implementeres.
+BFGS, den opdaterede BFGS og DFP implementeres.
 ```{r}
 # Implementation af backtracking
 backtracking_line_search <- function(alpha, c, rho, x_k, p_k, g_k, f) {
