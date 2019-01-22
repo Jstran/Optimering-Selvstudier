@@ -328,14 +328,43 @@ Kan ses som en modificeret Newton metode med line search. Gauss-Newton for ikke-
 Dette meføre at man i Gauss-Newton gerne løse 
 
 \begin{align*}
-J_k^\top J_k \boldsymbol{p}_k^{GN} = -J_k\boldsymbold{r}_k,
+J_k^\top J_k \boldsymbol{p}_k^{GN} = -J_k\boldsymbol{r}_k,
 \end{align*}
 for at opnå søgningsretningen $\boldsymbol{p}_k^{GN}$
 
 Ud fra ligheden mellem normalligningen fra det lineære least square problem og ovenstående Gauss-Newton ligning haves fordelen, at $p_k^{GN}$ kan løses som det lineære least-square problem
 \begin{align*}
-\min_p \frac{1}{2} \|J_k \boldsymbold p + \boldsymbol{r}_k\|^2.
+\min_p \frac{1}{2} \|J_k \boldsymbol p + \boldsymbol{r}_k\|^2.
 \end{align*}
+
+**Levenberg-Marquardt metoden**
+
+Denne metode benytter samme approksimation for Hessematricen
+
+\begin{align*}
+\nabla^2 f_k  \approx J_k^\top J_k.
+\end{align*}
+
+Dog er denne metode baseret på en trust region strategi frem for line search. 
+
+Her vil man løse minimeringsproblemet
+
+\begin{align*}
+\min_p \frac{1}{2} \|J_k \boldsymbol p + \boldsymbol{r}_k\|^2\\
+ \text{Subjekt to}
+ \|\boldsymbol{p}\| \leq \delta_k.
+\end{align*}
+
+Ud fra placeringen af $\boldsymbol{p}_k^{GN}$ i forhold til trustreginonen haves forskellige senarier. 
+Hvis $\boldsymbol{p}^{GN}$ ligger strengt indenfor trust regionen, vil $\boldsymbol{p}^{GN}$ også løse minimeringsproblem.
+
+Ligger $\boldsymbol{p}^{GN}$ derimod ikke inde for vil man skulle løse 
+\begin{align*}
+(J_k^\top J_k + \lambda I)\boldsymbol{p}_k = -J_k\top \boldsymbol{p}_k.
+\end{align*}
+
+Altså skal der findes et $\lambda > 0$ sådan at $\boldsymbol{p}_k = \boldsymbol{p}_k^{LM}$ sådan at længden af $p_k$ er lig med radiussen af trust-regionen.
+
 
 Anvender **Gauss-Newton** og **Levenberg-Marquardt** på USPop datamængden.
 ```{R}
