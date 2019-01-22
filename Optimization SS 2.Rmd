@@ -207,14 +207,7 @@ Implement algorithmic differentiation (AD) for univariate ($\mathbb{R} \to \math
 \]
 
 ***
-**Forward mode**
-
-Her evalueres en retningsafledt, for hvert $x_i$ i en given retning $p\in \mathbb{R}$. (Det bemærkes at her huskes der både på evalueringen af den retningsafledte og evalueringen af $x_i$).
-
-$$D_px_i=\nabla x_i^\top p = \sum_{j=1}^n \frac{\partial x_i}{\partial x_k}p_j, \quad i=1,\dots k,$$
-
-hvor $p$ er en \textit{"seed" vektor} og $n$ angiver antal startinput.
-
+Algortimisk differentiation er en måde at udregne afledt på, baseret på at kunne opdele funktioner i sekvenser af elementære regneoperationer. I det følgende implementeres en række operationer ud fra denne metode.
 ```{r}
 # Definerer hvad et "ADnum" er.
 create_ADnum = function(val, deriv = 1) {
@@ -281,18 +274,47 @@ stop("Function ’", .Generic, "’ not yet implemented for ADnum")
 }
 ```
 
+**Forward mode**
+
+Her evalueres en retningsafledt, for hvert $x_i$ i en given retning $p\in \mathbb{R}$. (Det bemærkes at her huskes der både på evalueringen af den retningsafledte og evalueringen af $x_i$).
+
+$$D_px_i=\nabla x_i^\top p = \sum_{j=1}^n \frac{\partial x_i}{\partial x_k}p_j, \quad i=1,\dots k,$$
+
+hvor $p$ er en \textit{"seed" vektor} og $n$ angiver antal startinput.
+
+**Praktisk anvendelse**
+
+Ved at betragte den givne funktion $f$, kan den inddeles i følgende elementære regneoperationer
+
+\begin{align*}
+    v_0 &= x\\
+    v_1 &= \cos(v_0)\\
+    v_2 &= \sin(v_0)\\
+    v_3 &= v_1 \cdot v_2\\
+    v_4 &= \cos(v_3).
+\end{align*}
+
+Ved brug af **forward mode** opnås tabel i noter.
+
+Anvender metoderne _AD_, _FD_, _CD_ og _ExpCD_ på funktionen $f$.
+
 ```{r}
+# Definerer funktion og gradient.
 f <- function(x) cos(sin(x)*cos(x))
 g_exact <- function(x) -(cos(x)^2-sin(x)^2)*sin(sin(x)*cos(x))
 
+# Vælger værdier.
 x <- pi/2
 h <- 10^-5
 
+# Printer funktion og gradient.
 f(x)
 g_exact(x)
 
+# Definerer x til at være et AD_num.
 x <- create_ADnum(x)
 
+# Differentiere med de forskellige metoder.
 f(x)
 FD(x$val , h)
 CD(x$val , h)
