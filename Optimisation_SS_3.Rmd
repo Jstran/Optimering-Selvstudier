@@ -62,6 +62,12 @@ Inverteret formel\
 \[
     H_{k+1} = H_k + \frac{(s_k - H_ky_k) (s_k-H_ky_k)^\top}{(s_k - H_ky_k)^\top y_k}\tag{SR1}
 \]
+ 
+Det er muligt at opdatere BFGS ved efter første skridt er udført at sætte
+\[ 
+   H_0 = \frac{y_k^\top s_k}{y_k^\top y_k} I_n
+\]
+før man opdatere til $H_1$. Dette skulle gøre størrelsen af den $H_0$ tættere på den sande inverterede hessematrice.
 
 BFGS og DFP implementeres.
 ```{r}
