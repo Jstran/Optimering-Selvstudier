@@ -307,18 +307,12 @@ g_exact <- function(x) -(cos(x)^2-sin(x)^2)*sin(sin(x)*cos(x))
 x <- pi/2
 h <- 10^-5
 
-# Printer funktion og gradient.
-f(x)
-g_exact(x)
+# Definerer xAD til at være et AD_num.
+xAD <- create_ADnum(x)
 
-# Definerer x til at være et AD_num.
-x <- create_ADnum(x)
+frame <- data.frame(Exact = c(f(x),g_exact(x)) , AD = c(f(xAD)$val,f(xAD)$deriv) , FD = c(NA,FD(x,h)) , CD = c(NA,CD(x,h)) , ExpCD = c(NA,ExpCD(x,h)) )
+rownames(frame) <- c("Function","Gradient") ; frame
 
-# Differentiere med de forskellige metoder.
-f(x)
-FD(x$val , h)
-CD(x$val , h)
-ExpCD(x$val , h)
 ```
 
 # Exercise 3
