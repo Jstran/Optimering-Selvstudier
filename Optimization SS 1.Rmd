@@ -1,5 +1,5 @@
 ---
-title: 'Optimisation: Self study 1'
+title: 'Optimisation: Self study 1 - Line Search'
 output:
   pdf_document: default
   html_document: default
@@ -32,10 +32,6 @@ where
 \[
 f_i(a, b) = (m(s_i) - d_i)^2 .
 \]
-
-## Animation
-
-Below, you are asked to illustrate. You can try both static graphics and with animations (e.g. using the `animation` package: <https://yihui.name/animation/>).
 
 # Exercise 1: Gradient descent
 
@@ -77,7 +73,7 @@ g <- function(ab){
 ```
 
 ***
-2. Implement gradient descent and use it to find the best straight line.
+2. Implement steepest descent and use it to find the best straight line.
 
 ***
 I Line search er iterationerne givet ved 
@@ -126,8 +122,8 @@ Nu hvor der er fundet en metode til at vælge skridtlængden $\alpha_k$, kan Ste
 steepest_descent <- function(f, g, x_k, alpha, c, rho, tol, k_max) {
 	
   N <- 30 
-	x <- seq(-20,3,length=N)
-	y <- seq(1,7,  length=N)
+  x <- seq(-20,3,length=N)
+  y <- seq(1,7,  length=N)
   z <- Outer(x , y , f_xy)
   lev <- c(300,500,750,1000,2000,4000)
   contour(x, y, z, levels = lev)
@@ -145,7 +141,7 @@ steepest_descent <- function(f, g, x_k, alpha, c, rho, tol, k_max) {
 		lines(c(x_old[1],x_k[1]) , c(x_old[2],x_k[2]) , col = "red")
 	}
 	
-	printfln("k = %d \t x_k = (%6.3f , %6.3f) \t f_k = %.2f \t g_k = (%8.3f , %8.3f) \t alpha_k = %.5f", k, x_k[1] , x_k[2], f(x_k), g_k[1] , g_k[2], alpha_k)
+	printfln("k = %d \t x_k = (%6.3f , %6.3f) \t f_k = %.2f \t g_k = (%8.3f , %8.3f) \nalpha_k = %.5f", k, x_k[1] , x_k[2], f(x_k), g_k[1] , g_k[2], alpha_k)
 	
 	return(x_k)
 }

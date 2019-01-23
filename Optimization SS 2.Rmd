@@ -1,5 +1,5 @@
 ---
-title: 'Optimisation: Self study 2'
+title: 'Optimisation: Self study 2 - Numerical Differentiation'
 output:
   pdf_document: default
   html_document: default

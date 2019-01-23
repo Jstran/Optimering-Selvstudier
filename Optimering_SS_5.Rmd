@@ -1,5 +1,5 @@
 ---
-title: 'Optimisation: Self study 5 (Conjugate gradient)'
+title: 'Optimisation: Self study 5 - Conjugate gradient'
 output:
   pdf_document: default
   html_document: default

@@ -1,5 +1,5 @@
 ---
-title: 'Optimisation: Self study 4 -- Least squares'
+title: 'Optimisation: Self study 4 - Least squares'
 output:
   pdf_document: default
   html_document: default
